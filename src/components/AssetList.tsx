@@ -35,7 +35,7 @@ export const AssetList = ({ assets, holdings }: AssetListProps) => {
           <div
             key={asset.id}
             onClick={() => navigate(`/asset/${asset.id}`)}
-            className="grid grid-cols-5 gap-4 p-4 brutal-border bg-brutal-white cursor-pointer dark:bg-brutal-black dark:text-brutal-white"
+            className="grid grid-cols-5 gap-4 p-4 brutal-border bg-brutal-white text-brutal-black cursor-pointer dark:bg-brutal-black dark:text-brutal-white"
           >
             <div className="font-bold">{asset.rank}</div>
             <div className="font-bold">
@@ -46,7 +46,7 @@ export const AssetList = ({ assets, holdings }: AssetListProps) => {
               </span>
             </div>
             <div>{formatPrice(asset.priceUsd)}</div>
-            <div className={parseFloat(asset.changePercent24Hr) >= 0 ? "text-green-600" : "text-red-600"}>
+            <div className={parseFloat(asset.changePercent24Hr) >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
               {formatPercentage(asset.changePercent24Hr)}
             </div>
             <div>{formatPrice(calculateHoldingValue(asset))}</div>
