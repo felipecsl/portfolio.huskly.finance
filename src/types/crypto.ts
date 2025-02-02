@@ -17,3 +17,8 @@ export interface AssetHistory {
   time: number;
   date: string;
 }
+
+export interface UserHolding {
+  symbol: string;
+  amount: number;
+}

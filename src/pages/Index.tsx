@@ -1,6 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import { Asset } from "@/types/crypto";
+import { Asset, UserHolding } from "@/types/crypto";
 import { AssetList } from "@/components/AssetList";
+import { formatPrice } from "@/lib/utils/format";
+
+// Sample holdings data
+const sampleHoldings: UserHolding[] = [
+  { symbol: "BTC", amount: 0.5 },
+  { symbol: "ETH", amount: 4 },
+  { symbol: "SOL", amount: 25 },
+];
 
 const Index = () => {
   const { data: assets, isLoading, error } = useQuery({
@@ -12,6 +20,17 @@ const Index = () => {
     },
     refetchInterval: 30000, // Refresh every 30 seconds
   });
+
+  const calculateTotalValue = () => {
+    if (!assets) return 0;
+    return sampleHoldings.reduce((total, holding) => {
+      const asset = assets.find(a => a.symbol === holding.symbol);
+      if (asset) {
+        return total + (parseFloat(asset.priceUsd) * holding.amount);
+      }
+      return total;
+    }, 0);
+  };
 
   if (isLoading) {
     return (
@@ -35,8 +54,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen p-8">
-      <h1 className="text-4xl font-bold mb-8 text-center">Crypto Assets</h1>
-      <AssetList assets={assets} />
+      <h1 className="text-4xl font-bold mb-4 text-center">Crypto Assets</h1>
+      <div className="text-2xl font-bold mb-8 text-center brutal-border inline-block px-6 py-3 mx-auto">
+        Total Portfolio Value: {formatPrice(calculateTotalValue())}
+      </div>
+      <AssetList assets={assets} holdings={sampleHoldings} />
     </div>
   );
 };
