@@ -21,6 +21,12 @@ export const AssetList = ({ assets, holdings }: AssetListProps) => {
     return holding ? holding.amount : 0;
   };
 
+  // Filter assets to only show those with holdings
+  const assetsWithHoldings = assets.filter(asset => {
+    const holdingAmount = getHoldingAmount(asset.symbol);
+    return holdingAmount > 0;
+  });
+
   return (
     <div className="w-full max-w-4xl mx-auto">
       <div className="grid grid-cols-5 gap-4 px-4 py-2 bg-brutal-black text-brutal-white font-bold dark:bg-brutal-white dark:text-brutal-black">
@@ -31,7 +37,7 @@ export const AssetList = ({ assets, holdings }: AssetListProps) => {
         <div>Holdings Value</div>
       </div>
       <div className="space-y-4 mt-4">
-        {assets.map((asset) => (
+        {assetsWithHoldings.map((asset) => (
           <div
             key={asset.id}
             onClick={() => navigate(`/asset/${asset.id}`)}
