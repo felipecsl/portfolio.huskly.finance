@@ -23,10 +23,11 @@ export const PriceChart = ({ data }: PriceChartProps) => {
           <Tooltip
             content={({ active, payload }) => {
               if (active && payload && payload.length) {
+                const value = payload[0].value as number;
                 return (
                   <div className="brutal-border bg-brutal-white p-2">
                     <p className="font-bold">
-                      {formatPrice(payload[0].value)}
+                      {formatPrice(value)}
                     </p>
                     <p className="text-sm">
                       {new Date(payload[0].payload.date).toLocaleDateString()}
