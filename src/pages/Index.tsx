@@ -16,10 +16,10 @@ const Index = () => {
           <PortfolioUpload onUpload={addPortfolio} />
         ) : (
           <>
-            <div className="mb-8">
+            <PortfolioList portfolios={portfolios} onRemove={removePortfolio} />
+            <div className="mt-8">
               <PortfolioUpload onUpload={addPortfolio} />
             </div>
-            <PortfolioList portfolios={portfolios} onRemove={removePortfolio} />
           </>
         )}
       </div>
