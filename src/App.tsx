@@ -11,8 +11,8 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          <Route path="/phinance/" element={<Index />} />
-          <Route path="/phinance/asset/:symbol" element={<AssetDetail />} />
+          <Route path="/" element={<Index />} />
+          <Route path="/asset/:symbol" element={<AssetDetail />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

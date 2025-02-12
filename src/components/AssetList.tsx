@@ -136,7 +136,7 @@ export const AssetList = ({ assets, holdings }: AssetListProps) => {
                 <tr
                   key={asset.id}
                   className="p-2 text-sm hover:bg-stone-700 cursor-pointer bg-stone-800 border-b border-gray-950"
-                  onClick={() => navigate(`/phinance/asset/${asset.symbol}`)}
+                  onClick={() => navigate(`/asset/${asset.symbol}`)}
                 >
                   <td className="p-4">{asset.symbol}</td>
                   <td className="px-2 py-4">{asset.name}</td>

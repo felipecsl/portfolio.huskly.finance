@@ -259,7 +259,7 @@ const AssetDetail = () => {
               The requested asset could not be found.
             </p>
             <button
-              onClick={() => navigate("/phinance")}
+              onClick={() => navigate("/")}
               className="mt-4 px-4 py-2 bg-blue-500 rounded hover:bg-blue-600"
             >
               Back to Home
