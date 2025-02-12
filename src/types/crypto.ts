@@ -24,3 +24,16 @@ export interface UserHolding {
   name: string;
   amount: number;
 }
+
+export interface Portfolio {
+  Name: string;
+  Holdings: {
+    [key: string]: {
+      Asset: {
+        Symbol: string;
+        Name: string;
+      };
+      "Total Shares": string;
+    };
+  };
+}

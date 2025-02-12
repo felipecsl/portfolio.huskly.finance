@@ -16,20 +16,9 @@ type SortDirection = "asc" | "desc";
 interface AssetListProps {
   assets: Asset[];
   holdings: UserHolding[];
-  selectedPortfolio:
-    | "fidelity401k"
-    | "julipeschwab"
-    | "personalschwab"
-    | "iraschwab"
-    | "crypto"
-    | "ibkr";
 }
 
-export const AssetList = ({
-  assets,
-  holdings,
-  selectedPortfolio,
-}: AssetListProps) => {
+export const AssetList = ({ assets, holdings }: AssetListProps) => {
   const navigate = useNavigate();
   // Load saved preferences from localStorage
   const savedSortField = localStorage.getItem("sortField") || "symbol";
@@ -145,9 +134,9 @@ export const AssetList = ({
               const value = calculateHoldingValue(asset);
               return (
                 <tr
-                  key={`${selectedPortfolio}-${asset.id}`}
+                  key={asset.id}
                   className="p-2 text-sm hover:bg-stone-700 cursor-pointer bg-stone-800 border-b border-gray-950"
-                  onClick={() => navigate(`/asset/${asset.symbol}`)}
+                  onClick={() => navigate(`/phinance/asset/${asset.symbol}`)}
                 >
                   <td className="p-4">{asset.symbol}</td>
                   <td className="px-2 py-4">{asset.name}</td>

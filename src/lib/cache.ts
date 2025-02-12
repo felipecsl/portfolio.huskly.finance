@@ -5,6 +5,23 @@ interface CacheEntry<T> {
 
 export const CACHE_DURATION = 5 * 60; // 5 minutes in seconds
 
+export async function cacheFetch<T>(
+  key: string,
+  fetchFunction: () => Promise<T>,
+  expirationInSeconds: number = CACHE_DURATION,
+): Promise<T> {
+  const cached = getFromCache<T>(key);
+  if (cached) return Promise.resolve(cached);
+
+  try {
+    const result = await fetchFunction();
+    return setCache(key, result, expirationInSeconds);
+  } catch (error) {
+    console.error("Cache fetch error:", error);
+    throw error;
+  }
+}
+
 export function getFromCache<T>(key: string): T | null {
   try {
     const cached = localStorage.getItem(key);

@@ -1,7 +1,8 @@
 import { Asset, UserHolding } from "@/types/crypto";
-import { getFromCache, setCache } from "./cache";
+import { cacheFetch, getFromCache, setCache } from "./cache";
 import { subBusinessDays } from "date-fns";
 import { getTimezoneOffset } from "date-fns-tz";
+import { isEmpty } from "lodash";
 
 export interface StockProfile {
   name: string;
@@ -44,20 +45,6 @@ async function fetchYahooQuote(symbol: string): Promise<StockQuote> {
   return { c: 0, dp: 0, name: "" };
 }
 
-interface SchwabQuote {
-  symbol: string;
-  description: string;
-  bidPrice: number;
-  askPrice: number;
-  lastPrice: number;
-  previousClose: number;
-  volume: number;
-  changeAmount: number;
-  changePercent: number;
-  exchange: string;
-  tradeTime: string;
-}
-
 interface SchwabQuoteResponse {
   [symbol: string]: {
     assetMainType: string;
@@ -93,25 +80,21 @@ function capitalizeCompanyName(name: string): string {
 }
 
 async function getSchwabToken(): Promise<string> {
-  // Try to get from cache first
-  const cachedToken = getFromCache<string>("schwab-token");
-  if (cachedToken) {
-    return cachedToken;
-  }
-
-  // Fetch new token
-  const response = await fetch("https://huskly.finance/schwab/oauth/token", {
-    method: "GET",
-    credentials: "include", // This ensures cookies are sent
-  });
-  if (!response.ok) {
-    throw new Error("Failed to fetch Schwab token");
-  }
-
-  const { token } = await response.json();
-
-  // Cache token for 15 minutes (900 seconds)
-  return setCache("schwab-token", token, 900);
+  return await cacheFetch<string>(
+    "schwab-token",
+    async () => {
+      const response = await fetch(
+        "https://huskly.finance/schwab/oauth/token",
+        { method: "GET", credentials: "include" },
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch Schwab token");
+      }
+      const { token } = await response.json();
+      return token;
+    },
+    900, // 15 minutes
+  );
 }
 
 export async function fetchStockQuotes(
@@ -122,8 +105,7 @@ export async function fetchStockQuotes(
 
   // First check cache for each symbol
   for (const symbol of symbols) {
-    const quoteCacheKey = `stock-quote-${symbol}`;
-    const cachedQuote = getFromCache<StockQuote>(quoteCacheKey);
+    const cachedQuote = getFromCache<StockQuote>(`stock-quote-${symbol}`);
     if (cachedQuote) {
       quotes.set(symbol, cachedQuote);
     } else {
@@ -132,13 +114,12 @@ export async function fetchStockQuotes(
   }
 
   // If we have symbols that need fetching
-  if (symbolsToFetch.length > 0) {
+  if (!isEmpty(symbolsToFetch)) {
     try {
       const token = await getSchwabToken();
+      const symbolList = symbolsToFetch.join(",");
       const response = await fetch(
-        `https://api.schwabapi.com/marketdata/v1/quotes?symbols=${symbolsToFetch.join(
-          ",",
-        )}&fields=quote%2Creference&indicative=false`,
+        `https://api.schwabapi.com/marketdata/v1/quotes?symbols=${symbolList}&fields=quote%2Creference&indicative=false`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -154,8 +135,6 @@ export async function fetchStockQuotes(
       }
 
       const data: SchwabQuoteResponse = await response.json();
-
-      // Process each quote from the response
       for (const symbol of symbolsToFetch) {
         const quoteData = data[symbol];
         if (quoteData) {
@@ -198,25 +177,16 @@ export async function fetchStockQuotes(
   return quotes;
 }
 
-export async function fetchStockAssets(
-  stocks: UserHolding[],
-): Promise<Asset[]> {
-  // Deduplicate stocks by symbol
-  const uniqueStocks = Array.from(
-    new Map(stocks.map((stock) => [stock.symbol, stock])).values(),
-  );
-
-  // Fetch all quotes at once
-  const symbols = uniqueStocks.map((stock) => stock.symbol);
-  const quotes = await fetchStockQuotes(symbols);
+export async function fetchStockAssets(symbols: Set<string>): Promise<Asset[]> {
+  const quotes = await fetchStockQuotes(Array.from(symbols));
 
   // Map to assets
-  return uniqueStocks.map(({ symbol, name }) => {
+  return Array.from(symbols).map((symbol) => {
     const quote = quotes.get(symbol) || { c: 0, dp: 0, name: "" };
     return {
       id: symbol,
       symbol,
-      name,
+      name: quote.name,
       priceUsd: quote.c.toString(),
       rank: "0",
       type: "stock",
@@ -266,31 +236,6 @@ interface PriceHistoryResponse {
   }>;
   symbol: string;
   empty: boolean;
-}
-
-async function fetchCryptoPriceHistory(
-  cryptoId: string,
-  days: number,
-): Promise<PriceDataPoint[]> {
-  const interval =
-    days <= 1 ? "m5" : days <= 7 ? "h1" : days <= 365 ? "h12" : "d1";
-  const end = Date.now();
-  const start = end - days * 24 * 60 * 60 * 1000;
-  const response = await fetch(
-    `https://api.coincap.io/v2/assets/${cryptoId}/history?interval=${interval}&start=${start}&end=${end}`,
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch crypto history");
-  }
-
-  const data = await response.json();
-  return data.data
-    .map((item: any) => ({
-      timestamp: new Date(item.time).getTime(),
-      price: parseFloat(item.priceUsd),
-    }))
-    .sort((a, b) => a.timestamp - b.timestamp);
 }
 
 async function fetchStockPriceHistory(

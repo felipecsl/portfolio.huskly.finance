@@ -17,7 +17,7 @@ import {
   fetchStockQuotes,
   PriceDataPoint,
 } from "@/lib/stockData";
-
+import { cryptoSymbols, isCrypto } from "@/lib/cryptoData";
 interface ChartPeriod {
   days: number;
   label: string;
@@ -50,35 +50,6 @@ const AssetDetail = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<ChartPeriod>(
     CHART_PERIODS[0],
   );
-
-  // Determine if this is a crypto asset
-  const isCrypto = (symbol: string) => {
-    return cryptoSymbols.hasOwnProperty(symbol);
-  };
-
-  // Format symbol for CoinCap API (lowercase and handle special cases)
-  const cryptoSymbols: { [key: string]: string } = {
-    BTC: "bitcoin",
-    ETH: "ethereum",
-    USDT: "tether",
-    BNB: "binance-coin",
-    USDC: "usd-coin",
-    XRP: "xrp",
-    ADA: "cardano",
-    DOGE: "dogecoin",
-    SOL: "solana",
-    TRX: "tron",
-    DOT: "polkadot",
-    MATIC: "polygon",
-    DAI: "dai",
-    LTC: "litecoin",
-    SHIB: "shiba-inu",
-    AVAX: "avalanche",
-    LINK: "chainlink",
-    XLM: "stellar",
-    UNI: "uniswap",
-    ATOM: "cosmos",
-  };
 
   // Fetch current asset data
   const { data: asset, isLoading: assetLoading } = useQuery<
@@ -291,7 +262,7 @@ const AssetDetail = () => {
               The requested asset could not be found.
             </p>
             <button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/phinance")}
               className="mt-4 px-4 py-2 bg-blue-500 rounded hover:bg-blue-600"
             >
               Back to Home
@@ -305,13 +276,6 @@ const AssetDetail = () => {
   return (
     <div className="min-h-screen p-8 bg-zinc-800">
       <div className="w-full max-w-4xl mx-auto">
-        <button
-          onClick={() => navigate("/")}
-          className="mb-4 px-4 py-2 bg-stone-700 rounded hover:bg-stone-600"
-        >
-          ← Back
-        </button>
-
         <div className="brutal-border p-6 mb-8 rounded-lg">
           <div className="flex justify-between items-center mb-4">
             <div>
@@ -320,13 +284,13 @@ const AssetDetail = () => {
             </div>
             <div className="text-right">
               <div className="text-4xl font-medium mb-4">
-                {formatPrice(parseFloat(asset.price))}
+                {formatPrice(+asset.price)}
               </div>
               <PercentageChange
                 value={
                   history
                     ? calculatePeriodChange(history)
-                    : parseFloat(asset.changePercent24h)
+                    : +asset.changePercent24h
                 }
               />
             </div>
