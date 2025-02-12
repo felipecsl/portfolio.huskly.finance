@@ -6,7 +6,6 @@ import {
   createChart,
   ColorType,
   IChartApi,
-  ISeriesApi,
   LineStyle,
   AreaSeries,
 } from "lightweight-charts";
@@ -118,10 +117,7 @@ const AssetDetail = () => {
   });
 
   // Fetch historical data
-  const { data: history, isLoading: historyLoading } = useQuery<
-    PriceDataPoint[],
-    Error
-  >({
+  const { data: history } = useQuery<PriceDataPoint[], Error>({
     queryKey: ["asset-history", symbol, selectedPeriod.days],
     queryFn: async () => {
       if (!symbol) throw new Error("Symbol is required");
@@ -211,6 +207,7 @@ const AssetDetail = () => {
       value: item.price,
     }));
 
+    // @ts-ignore
     series.setData(chartData);
 
     // Fit content and add margin

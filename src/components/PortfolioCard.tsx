@@ -95,7 +95,7 @@ export function PortfolioCard({ portfolio, onRemove }: PortfolioCardProps) {
             <div className="mt-4">
               <PercentageChange
                 value={
-                  (assets.reduce((sum, asset) => {
+                  (assets!.reduce((sum, asset) => {
                     const holding = Object.values(portfolio.Holdings).find(
                       (h) => h.Asset.Symbol.includes(asset.symbol),
                     );

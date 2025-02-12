@@ -1,8 +1,7 @@
-import { Asset, UserHolding } from "@/types/crypto";
+import { Asset } from "@/types/crypto";
 import { cacheFetch, getFromCache, setCache } from "./cache";
-import { subBusinessDays } from "date-fns";
-import { getTimezoneOffset } from "date-fns-tz";
 import { isEmpty } from "lodash";
+import { fetchCryptoPriceHistory } from "./cryptoData";
 
 export interface StockProfile {
   name: string;

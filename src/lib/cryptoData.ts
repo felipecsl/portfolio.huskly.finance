@@ -59,7 +59,7 @@ export async function fetchCryptoAssets(
     }));
 }
 
-async function fetchCryptoPriceHistory(
+export async function fetchCryptoPriceHistory(
   cryptoId: string,
   days: number,
 ): Promise<PriceDataPoint[]> {
@@ -81,5 +81,5 @@ async function fetchCryptoPriceHistory(
       timestamp: new Date(item.time).getTime(),
       price: parseFloat(item.priceUsd),
     }))
-    .sort((a, b) => a.timestamp - b.timestamp);
+    .sort((a: PriceDataPoint, b: PriceDataPoint) => a.timestamp - b.timestamp);
 }

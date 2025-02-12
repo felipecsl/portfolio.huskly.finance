@@ -1,5 +1,5 @@
 import { Asset, UserHolding } from "@/types/crypto";
-import { formatPrice, formatPercentage } from "@/lib/utils/format";
+import { formatPrice } from "@/lib/utils/format";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { PercentageChange } from "./PercentageChange";
