@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "prepare": "husky",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prettier": "prettier --check ."
   },
   "dependencies": {
     "@fontsource/space-grotesk": "^5.1.1",
