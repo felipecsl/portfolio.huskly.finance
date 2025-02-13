@@ -4,7 +4,6 @@ import { isEmpty } from "lodash";
 import { useState } from "react";
 import { AssetList } from "./AssetList";
 import { PercentageChange } from "./PercentageChange";
-import { parseSymbol } from "./parseSymbol";
 
 export interface PortfolioCardProps {
   name: string;

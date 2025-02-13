@@ -1,69 +1,44 @@
-# Welcome to your Lovable project
+# Huskly Portfolio
 
-## Project info
+Self-hosted clone of [Google Finance](https://www.google.com/finance), designed to help users manage and track their investment portfolios without relying on Google.
+You can access the live application at https://portfolio.huskly.finance.
 
-**URL**: https://lovable.dev/projects/4f8af6d7-b00f-4f20-9808-c3d4cc74e9ac
+# Features
 
-## How can I edit this code?
+## Portfolio Management
 
-There are several ways of editing your application.
+Import your investment portfolios from [Google Takeout](https://takeout.google.com/) by selecting "Google Finance" in the "Takeout Data" section.
+Download and decompress the generated zip file.
+Select the portfolio JSON files you'd like to import from the `Portfolios` folder.
 
-**Use Lovable**
+All data is stored locally on the browser's local storage.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/4f8af6d7-b00f-4f20-9808-c3d4cc74e9ac) and start prompting.
+## Real-Time Data
 
-Changes made via Lovable will be committed automatically to this repo.
+If you have a [Charles Schwab](https://www.schwab.com/) account, you can use [Huskly Finance](https://huskly.finance) to fetch real-time data for equities in your portfolio.
+Sign up for a free Huskly account and connect to your Schwab account.
+Then, go back to this app and refresh the page. It will automatically fetch the latest data for your portfolio
+using the Schwab API.
 
-**Use your preferred IDE**
+## Equities, Crypto, and more
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Supports equities, crypto, ETFs, mutual funds and more.
+Displays a chart with the price history, current price, and percentage change.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Building and running locally
 
-Follow these steps:
+```bash
+npm install
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Contributing
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Contributions are welcome! Feel free to open issues or submit pull requests.
 
-**Use GitHub Codespaces**
+## License
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/4f8af6d7-b00f-4f20-9808-c3d4cc74e9ac) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+MIT License.
