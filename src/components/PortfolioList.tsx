@@ -5,7 +5,7 @@ import { fetchStockAssets } from "@/lib/stockData";
 import { useQuery } from "@tanstack/react-query";
 import { isEmpty } from "lodash";
 import { isCrypto, parseSymbol } from "./parseSymbol";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 interface PortfolioListProps {
   portfolios: Portfolio[];
@@ -16,6 +16,13 @@ export function PortfolioList({ portfolios, onRemove }: PortfolioListProps) {
   const [portfolioValues, setPortfolioValues] = useState<
     Record<string, number>
   >({});
+
+  const totalPortfoliosValue = useMemo(() => {
+    return Object.values(portfolioValues).reduce(
+      (sum, value) => sum + value,
+      0,
+    );
+  }, [portfolioValues]);
 
   const sortedPortfolios = [...portfolios].sort((a, b) => {
     return (portfolioValues[b.Name] || 0) - (portfolioValues[a.Name] || 0);
@@ -38,7 +45,16 @@ export function PortfolioList({ portfolios, onRemove }: PortfolioListProps) {
   ); // No dependencies needed since we're using the function form of setState
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      <div className="bg-white shadow rounded-lg px-4 py-6 dark:bg-stone-900 border-gray-950 border rounded drop-shadow-lg">
+        <h2 className="text-4xl font-medoium text-gray-900 dark:text-white">
+          $
+          {totalPortfoliosValue.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
+        </h2>
+      </div>
       {sortedPortfolios.map((portfolio) => (
         <PortfolioCardWrapper
           key={portfolio.Name}

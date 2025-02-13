@@ -82,15 +82,20 @@ async function getSchwabToken(): Promise<string> {
   return await cacheFetch<string>(
     "schwab-token",
     async () => {
-      const response = await fetch(
-        "https://huskly.finance/schwab/oauth/token",
-        { method: "GET", credentials: "include" },
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch Schwab token");
+      if (import.meta.env.PROD) {
+        const response = await fetch(
+          "https://huskly.finance/schwab/oauth/token",
+          { method: "GET", credentials: "include" },
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch Schwab token");
+        }
+        const { token } = await response.json();
+        return token;
+      } else {
+        // allow overriding oauth token for local development
+        return import.meta.env.VITE_SCHWAB_TOKEN;
       }
-      const { token } = await response.json();
-      return token;
     },
     900, // 15 minutes
   );

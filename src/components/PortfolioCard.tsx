@@ -21,11 +21,11 @@ export function PortfolioCard({
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="p-6 bg-stone-800 text-gray-200 dark:bg-stone-800 hover:bg-stone-900 dark:text-brutal-white border-gray-950 border rounded drop-shadow-lg cursor-pointer">
-      <div
-        className="flex justify-between items-start mb-4"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
+    <div
+      className="p-6 bg-stone-800 text-gray-200 dark:bg-stone-800 hover:bg-stone-900 dark:text-brutal-white border-gray-950 border rounded drop-shadow-lg cursor-pointer"
+      onClick={() => setIsExpanded(!isExpanded)}
+    >
+      <div className="flex justify-between items-start">
         <div>
           <h2 className="text-2xl font-medium">{name}</h2>
           <p className="text-gray-400">{assets.length} holdings</p>
