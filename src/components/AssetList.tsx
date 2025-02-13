@@ -1,7 +1,7 @@
-import { Asset, UserHolding } from "@/types/crypto";
 import { formatPrice } from "@/lib/utils/format";
-import { useNavigate } from "react-router-dom";
+import { AssetWithAmount } from "@/types/crypto";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PercentageChange } from "./PercentageChange";
 
 type SortField =
@@ -14,11 +14,10 @@ type SortField =
 type SortDirection = "asc" | "desc";
 
 interface AssetListProps {
-  assets: Asset[];
-  holdings: UserHolding[];
+  assets: AssetWithAmount[];
 }
 
-export const AssetList = ({ assets, holdings }: AssetListProps) => {
+export const AssetList = ({ assets }: AssetListProps) => {
   const navigate = useNavigate();
   // Load saved preferences from localStorage
   const savedSortField = localStorage.getItem("sortField") || "symbol";
@@ -32,13 +31,12 @@ export const AssetList = ({ assets, holdings }: AssetListProps) => {
     savedSortDirection as SortDirection,
   );
 
-  const calculateHoldingValue = (asset: Asset) => {
-    const holding = holdings.find((h) => h.symbol === asset.symbol);
-    return holding ? parseFloat(asset.priceUsd) * holding.amount : 0;
+  const calculateHoldingValue = (asset: AssetWithAmount) => {
+    return parseFloat(asset.priceUsd) * asset.amount;
   };
 
   const getHoldingAmount = (symbol: string) => {
-    const holding = holdings.find((h) => h.symbol === symbol);
+    const holding = assets.find((h) => h.symbol === symbol);
     return holding ? Number(holding.amount.toFixed(3)) : 0;
   };
 

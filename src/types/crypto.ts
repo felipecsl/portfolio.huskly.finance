@@ -13,6 +13,10 @@ export interface Asset {
   vwap24Hr: string;
 }
 
+export interface AssetWithAmount extends Asset {
+  amount: number;
+}
+
 export interface AssetHistory {
   priceUsd: string;
   time: number;
