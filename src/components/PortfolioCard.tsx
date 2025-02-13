@@ -56,7 +56,7 @@ export function PortfolioCard({
         </div>
       </div>
 
-      <div className="flex gap-4 mb-4">
+      <div className="flex gap-4">
         <button
           onClick={onRemove}
           className="px-3 py-1 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30"

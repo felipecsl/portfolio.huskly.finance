@@ -276,11 +276,13 @@ const AssetDetail = () => {
         <div className="brutal-border p-6 mb-8 rounded-lg">
           <div className="flex justify-between items-center mb-4">
             <div>
-              <h1 className="text-3xl font-medium">{asset.name}</h1>
+              <h1 className="text-3xl font-medium text-gray-300">
+                {asset.name}
+              </h1>
               <p className="text-gray-400">{asset.symbol}</p>
             </div>
             <div className="text-right">
-              <div className="text-4xl font-medium mb-4">
+              <div className="text-4xl font-medium mb-4 text-gray-300">
                 {formatPrice(+asset.price)}
               </div>
               <PercentageChange
