@@ -5,6 +5,10 @@ You can access the live application at https://portfolio.huskly.finance.
 
 # Features
 
+## Asset Search
+
+Search for an asset anywhere with `^+K` or `⌘+K`.
+
 ## Portfolio Management
 
 Import your investment portfolios from [Google Takeout](https://takeout.google.com/) by selecting "Google Finance" in the "Takeout Data" section.
