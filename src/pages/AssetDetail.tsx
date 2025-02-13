@@ -273,6 +273,12 @@ const AssetDetail = () => {
   return (
     <div className="min-h-screen p-8 bg-zinc-800">
       <div className="w-full max-w-4xl mx-auto">
+        <button
+          onClick={() => navigate("/")}
+          className="mb-6 px-4 py-2 text-white bg-stone-900 rounded-lg border border-gray-950 hover:bg-stone-800 transition-colors"
+        >
+          ← Back to Portfolios
+        </button>
         <div className="brutal-border p-6 mb-8 rounded-lg">
           <div className="flex justify-between items-center mb-4">
             <div>
