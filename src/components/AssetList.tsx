@@ -1,5 +1,4 @@
 import { formatPrice } from "@/lib/utils/format";
-import { AssetWithAmount } from "@/types/crypto";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PercentageChange } from "./PercentageChange";
@@ -14,7 +13,15 @@ type SortField =
 type SortDirection = "asc" | "desc";
 
 interface AssetListProps {
-  assets: AssetWithAmount[];
+  assets: {
+    symbol: string;
+    name: string;
+    priceUsd: string;
+    changePercent24Hr: string;
+    amount: number;
+    id: string;
+    type: string;
+  }[];
 }
 
 export const AssetList = ({ assets }: AssetListProps) => {
@@ -31,7 +38,7 @@ export const AssetList = ({ assets }: AssetListProps) => {
     savedSortDirection as SortDirection,
   );
 
-  const calculateHoldingValue = (asset: AssetWithAmount) => {
+  const calculateHoldingValue = (asset: AssetListProps["assets"][number]) => {
     return parseFloat(asset.priceUsd) * asset.amount;
   };
 
@@ -104,7 +111,7 @@ export const AssetList = ({ assets }: AssetListProps) => {
   );
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-6xl mx-auto">
       <div className="flex flex-col gap-4 my-4">
         <input
           type="text"
