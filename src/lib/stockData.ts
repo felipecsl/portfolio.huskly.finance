@@ -1,5 +1,5 @@
 import { Asset } from "@/types/crypto";
-import { cacheFetch, getFromCache, setCache } from "./cache";
+import { getFromCache, setCache } from "./cache";
 import { isEmpty } from "lodash";
 import { fetchCryptoPriceHistory } from "./cryptoData";
 import { getSchwabToken } from "./schwabData";
