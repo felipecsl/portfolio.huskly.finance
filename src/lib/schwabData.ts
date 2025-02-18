@@ -1,3 +1,5 @@
+import { cacheFetch } from "./cache";
+
 interface SchwabPosition {
   shortQuantity: number;
   longQuantity: number;
@@ -102,7 +104,7 @@ export function formatCurrency(value: number): string {
 
 export async function fetchSchwabData(): Promise<ParsedPortfolio> {
   try {
-    const token = import.meta.env.VITE_SCHWAB_TOKEN;
+    const token = await getSchwabToken();
     const response = await fetch(
       "https://api.schwabapi.com/trader/v1/accounts?fields=positions",
       { headers: { Authorization: `Bearer ${token}` } },
@@ -113,4 +115,27 @@ export async function fetchSchwabData(): Promise<ParsedPortfolio> {
     console.error("Error fetching Schwab data:", error);
     throw error;
   }
+}
+
+export async function getSchwabToken(): Promise<string> {
+  return await cacheFetch<string>(
+    "schwab-token",
+    async () => {
+      if (import.meta.env.PROD) {
+        const response = await fetch(
+          "https://huskly.finance/schwab/oauth/token",
+          { method: "GET", credentials: "include" },
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch Schwab token");
+        }
+        const { token } = await response.json();
+        return token;
+      } else {
+        // allow overriding oauth token for local development
+        return import.meta.env.VITE_SCHWAB_TOKEN;
+      }
+    },
+    900, // 15 minutes
+  );
 }

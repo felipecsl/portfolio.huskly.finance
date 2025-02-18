@@ -2,6 +2,7 @@ import { Asset } from "@/types/crypto";
 import { cacheFetch, getFromCache, setCache } from "./cache";
 import { isEmpty } from "lodash";
 import { fetchCryptoPriceHistory } from "./cryptoData";
+import { getSchwabToken } from "./schwabData";
 
 export interface StockProfile {
   name: string;
@@ -76,29 +77,6 @@ function capitalizeCompanyName(name: string): string {
         : word.charAt(0).toUpperCase() + word.toLowerCase().slice(1);
     })
     .join(" ");
-}
-
-async function getSchwabToken(): Promise<string> {
-  return await cacheFetch<string>(
-    "schwab-token",
-    async () => {
-      if (import.meta.env.PROD) {
-        const response = await fetch(
-          "https://huskly.finance/schwab/oauth/token",
-          { method: "GET", credentials: "include" },
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch Schwab token");
-        }
-        const { token } = await response.json();
-        return token;
-      } else {
-        // allow overriding oauth token for local development
-        return import.meta.env.VITE_SCHWAB_TOKEN;
-      }
-    },
-    900, // 15 minutes
-  );
 }
 
 export async function fetchStockQuotes(
