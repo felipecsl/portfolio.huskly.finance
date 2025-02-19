@@ -5,7 +5,7 @@ import { fetchStockAssets } from "@/lib/stockData";
 import { useQuery } from "@tanstack/react-query";
 import { isEmpty } from "lodash";
 import { isCrypto, parseSymbol } from "./parseSymbol";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface PortfolioListProps {
   portfolios: Portfolio[];
