@@ -3,7 +3,7 @@ import { Trade } from "@/types/trades";
 import { format, startOfYear } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
-import { fetchAccountNumbers, fetchTransactionHistory } from "@/lib/schwabData";
+import { fetchAccountNumbers, fetchTransactionHistory } from "@/lib/schwabApi";
 import { useQuery } from "@tanstack/react-query";
 
 // Define available asset types

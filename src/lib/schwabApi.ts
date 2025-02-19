@@ -1,60 +1,17 @@
 import { Trade } from "@/types/trades";
 import { cacheFetch } from "./cache";
 import { startOfYear, format } from "date-fns";
+import type {
+  SchwabAccount,
+  SchwabQuoteResponse,
+  ParsedPosition,
+  ParsedPortfolio,
+  PriceDataPoint,
+  PriceHistoryParams,
+  PriceHistoryResponse,
+} from "@/types/schwab";
 
-interface SchwabPosition {
-  shortQuantity: number;
-  longQuantity: number;
-  averagePrice: number;
-  currentDayProfitLoss: number;
-  currentDayProfitLossPercentage: number;
-  instrument: {
-    assetType: string;
-    cusip: string;
-    symbol: string;
-    description: string;
-    instrumentId: number;
-    netChange: number;
-    type: string;
-  };
-  marketValue: number;
-}
-
-interface SchwabAccount {
-  securitiesAccount: {
-    accountNumber: string;
-    positions: SchwabPosition[];
-    currentBalances: {
-      equity: number;
-      availableFunds: number;
-      buyingPower: number;
-      cashBalance: number;
-      liquidationValue: number;
-    };
-  };
-}
-
-export interface ParsedPosition {
-  symbol: string;
-  name: string;
-  amount: number;
-  priceUsd: string;
-  value: number;
-  changePercent24Hr: string;
-  id: string;
-  type: "stock";
-}
-
-export interface ParsedPortfolio {
-  accountNumber: string;
-  positions: ParsedPosition[];
-  liquidationValue: number;
-  availableFunds: number;
-  buyingPower: number;
-  cashBalance: number;
-}
-
-export function parseSchwabAccounts(data: SchwabAccount[]): ParsedPortfolio[] {
+function parseSchwabAccounts(data: SchwabAccount[]): ParsedPortfolio[] {
   if (!data || !data.length) {
     return [];
   }
@@ -102,23 +59,35 @@ export function formatCurrency(value: number): string {
   }).format(value);
 }
 
+async function fetchSchwabApi<T>(
+  endpoint: string,
+  options: RequestInit = {},
+): Promise<T> {
+  const token = await getSchwabToken();
+  const response = await fetch(`https://api.schwabapi.com${endpoint}`, {
+    ...options,
+    headers: {
+      ...options.headers,
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch ${endpoint}: ${response.statusText}`);
+  }
+
+  return await response.json();
+}
+
 export async function fetchSchwabAccounts(): Promise<ParsedPortfolio[]> {
   return (
     (await cacheFetch<ParsedPortfolio[]>(
       "schwab-accounts",
       async () => {
-        try {
-          const token = await getSchwabToken();
-          const response = await fetch(
-            "https://api.schwabapi.com/trader/v1/accounts?fields=positions",
-            { headers: { Authorization: `Bearer ${token}` } },
-          );
-          const data = await response.json();
-          return parseSchwabAccounts(data);
-        } catch (error) {
-          console.error("Error fetching Schwab data:", error);
-          throw error;
-        }
+        const data: SchwabAccount[] = await fetchSchwabApi(
+          "/trader/v1/accounts?fields=positions",
+        );
+        return parseSchwabAccounts(data);
       },
       60, // 1 minute
     )) || []
@@ -154,25 +123,8 @@ export async function fetchAccountNumbers(): Promise<
   return (
     (await cacheFetch<{ accountNumber: string; hashValue: string }[]>(
       "schwab-account-numbers",
-      async () => {
-        try {
-          const token = await getSchwabToken();
-          const response = await fetch(
-            "https://api.schwabapi.com/trader/v1/accounts/accountNumbers",
-            { headers: { Authorization: `Bearer ${token}` } },
-          );
-          if (!response.ok) {
-            throw new Error(
-              `Failed to fetch account numbers: ${response.statusText}`,
-            );
-          }
-          return await response.json();
-        } catch (error) {
-          console.error("Error fetching account numbers:", error);
-          throw error;
-        }
-      },
-      60 * 60 * 12, // 12 hours cache duration
+      async () => await fetchSchwabApi("/trader/v1/accounts/accountNumbers"),
+      60 * 60 * 12, // 12 hours
     )) || []
   );
 }
@@ -198,30 +150,80 @@ export async function fetchAccountTransactionHistory(
   startDate: Date = startOfYear(new Date()),
   endDate: Date = new Date(),
 ): Promise<Trade[]> {
-  try {
-    const token = await getSchwabToken();
+  const formattedStartDate = format(startDate, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+  const formattedEndDate = format(endDate, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+  return await fetchSchwabApi(
+    `/trader/v1/accounts/${accountHash}/transactions?startDate=${formattedStartDate}&endDate=${formattedEndDate}`,
+  );
+}
 
-    // Format dates to ISO string with milliseconds
-    const formattedStartDate = format(
-      startDate,
-      "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-    );
-    const formattedEndDate = format(endDate, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+export async function fetchSchwabQuotes(
+  symbols: string[],
+): Promise<SchwabQuoteResponse> {
+  const symbolList = symbols.join(",");
+  return await fetchSchwabApi(
+    `/marketdata/v1/quotes?symbols=${symbolList}&fields=quote%2Creference&indicative=false`,
+  );
+}
 
-    const response = await fetch(
-      `https://api.schwabapi.com/trader/v1/accounts/${accountHash}/transactions?startDate=${formattedStartDate}&endDate=${formattedEndDate}`,
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
+export async function fetchSchwabPriceHistory(
+  symbol: string,
+  days: number,
+  frequency: number,
+  frequencyType: "minute" | "daily" | "weekly" | "monthly",
+): Promise<PriceDataPoint[]> {
+  const periodType =
+    days <= 1
+      ? "day"
+      : days <= 10
+        ? "day"
+        : days <= 180
+          ? "month"
+          : days <= 365
+            ? "year"
+            : "year";
+  const period =
+    days <= 1
+      ? 1
+      : days <= 10
+        ? days
+        : days <= 180
+          ? Math.ceil(days / 30)
+          : days <= 365
+            ? 1
+            : 5;
+  const endDate = Date.now();
+  const params: PriceHistoryParams = {
+    symbol,
+    periodType,
+    period,
+    frequencyType,
+    frequency,
+    endDate,
+    needExtendedHoursData: days <= 1,
+  };
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch account transactions: ${response.statusText}`,
-      );
-    }
+  const queryString = Object.entries(params)
+    .filter(([_, value]) => value !== undefined)
+    .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+    .join("&");
 
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching transaction history:", error);
-    throw error;
+  const data = await fetchSchwabApi<PriceHistoryResponse>(
+    `/marketdata/v1/pricehistory?${queryString}`,
+  );
+
+  if (data.empty) {
+    return [];
   }
+
+  return (
+    data.candles
+      .map(({ datetime, close }) => ({ timestamp: datetime, price: close }))
+      .sort((a, b) => a.timestamp - b.timestamp)
+      // Filter out duplicates, keeping first occurrence if any
+      .filter(
+        (candle, index, array) =>
+          array.findIndex((c) => c.timestamp === candle.timestamp) === index,
+      )
+  );
 }

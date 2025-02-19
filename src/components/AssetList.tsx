@@ -104,16 +104,6 @@ export const AssetList = ({ assets }: AssetListProps) => {
     return <span className="ml-1">{sortDirection === "asc" ? "↑" : "↓"}</span>;
   };
 
-  const renderHeaderCell = (field: SortField, label: string) => (
-    <th
-      className="p-2 text-left cursor-pointer hover:bg-gray-500 text-right"
-      onClick={(e) => handleSort(e, field)}
-    >
-      {label}
-      <SortIcon field={field} />
-    </th>
-  );
-
   return (
     <div className="w-full max-w-6xl mx-auto">
       <div className="flex flex-col gap-4 my-4">
@@ -131,12 +121,48 @@ export const AssetList = ({ assets }: AssetListProps) => {
         <table className="w-full">
           <thead>
             <tr className="border-b border-brutal-black dark:border-brutal-white p-2 rounded-t-lg">
-              {renderHeaderCell("symbol", "Symbol")}
-              {renderHeaderCell("name", "Name")}
-              {renderHeaderCell("priceUsd", "Price")}
-              {renderHeaderCell("amount", "Amount")}
-              {renderHeaderCell("value", "Value")}
-              {renderHeaderCell("changePercent24Hr", "24h Change")}
+              <th
+                className="p-4 text-gray-400 text-left cursor-pointer"
+                onClick={(e) => handleSort(e, "symbol")}
+              >
+                Symbol
+                <SortIcon field="symbol" />
+              </th>
+              <th
+                className="px-2 py-4 text-gray-400 text-left cursor-pointer"
+                onClick={(e) => handleSort(e, "name")}
+              >
+                Name
+                <SortIcon field="name" />
+              </th>
+              <th
+                className="px-2 py-4 text-gray-400 text-right cursor-pointer"
+                onClick={(e) => handleSort(e, "priceUsd")}
+              >
+                Price
+                <SortIcon field="priceUsd" />
+              </th>
+              <th
+                className="px-2 py-4 text-gray-400 text-right cursor-pointer"
+                onClick={(e) => handleSort(e, "amount")}
+              >
+                Amount
+                <SortIcon field="amount" />
+              </th>
+              <th
+                className="px-2 py-4 text-gray-400 text-right cursor-pointer"
+                onClick={(e) => handleSort(e, "value")}
+              >
+                Value
+                <SortIcon field="value" />
+              </th>
+              <th
+                className="p-4 text-gray-400 text-right cursor-pointer"
+                onClick={(e) => handleSort(e, "changePercent24Hr")}
+              >
+                24h Change
+                <SortIcon field="changePercent24Hr" />
+              </th>
             </tr>
           </thead>
           <tbody>

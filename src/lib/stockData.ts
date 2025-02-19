@@ -1,8 +1,8 @@
 import { Asset } from "@/types/crypto";
-import { cacheGet, cacheSet } from "./cache";
 import { isEmpty } from "lodash";
+import { cacheGet, cacheSet } from "./cache";
 import { fetchCryptoPriceHistory } from "./cryptoData";
-import { getSchwabToken } from "./schwabData";
+import { fetchSchwabPriceHistory, fetchSchwabQuotes } from "./schwabApi";
 
 export interface StockProfile {
   name: string;
@@ -45,27 +45,6 @@ async function fetchYahooQuote(symbol: string): Promise<StockQuote> {
   return { c: 0, dp: 0, name: "" };
 }
 
-interface SchwabQuoteResponse {
-  [symbol: string]: {
-    assetMainType: string;
-    assetSubType: string;
-    quoteType: string;
-    realtime: boolean;
-    ssid: number;
-    symbol: string;
-    quote: {
-      lastPrice: number;
-      netPercentChange: number;
-      markPercentChange: number;
-      // ... other quote fields
-    };
-    reference: {
-      description: string;
-      // ... other reference fields
-    };
-  };
-}
-
 function capitalizeCompanyName(name: string): string {
   // Split on spaces and handle each word
   return name
@@ -98,25 +77,7 @@ export async function fetchStockQuotes(
   // If we have symbols that need fetching
   if (!isEmpty(symbolsToFetch)) {
     try {
-      const token = await getSchwabToken();
-      const symbolList = symbolsToFetch.join(",");
-      const response = await fetch(
-        `https://api.schwabapi.com/marketdata/v1/quotes?symbols=${symbolList}&fields=quote%2Creference&indicative=false`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          `Failed to fetch quotes for ${symbolsToFetch.join(", ")}`,
-        );
-      }
-
-      const data: SchwabQuoteResponse = await response.json();
+      const data = await fetchSchwabQuotes(symbolsToFetch);
       for (const symbol of symbolsToFetch) {
         const quoteData = data[symbol];
         if (quoteData) {
@@ -196,105 +157,6 @@ interface FetchPriceHistoryOptions {
   frequencyType?: "minute" | "daily" | "weekly" | "monthly";
 }
 
-interface PriceHistoryParams {
-  symbol: string;
-  periodType?: "day" | "month" | "year" | "ytd";
-  period?: number;
-  frequencyType?: "minute" | "daily" | "weekly" | "monthly";
-  frequency?: number;
-  startDate?: number;
-  endDate?: number;
-  needExtendedHoursData?: boolean;
-}
-
-interface PriceHistoryResponse {
-  candles: Array<{
-    datetime: number;
-    open: number;
-    high: number;
-    low: number;
-    close: number;
-    volume: number;
-  }>;
-  symbol: string;
-  empty: boolean;
-}
-
-async function fetchStockPriceHistory(
-  symbol: string,
-  days: number,
-  frequency: number,
-  frequencyType: "minute" | "daily" | "weekly" | "monthly",
-): Promise<PriceDataPoint[]> {
-  const periodType =
-    days <= 1
-      ? "day"
-      : days <= 10
-        ? "day"
-        : days <= 180
-          ? "month"
-          : days <= 365
-            ? "year"
-            : "year";
-  const period =
-    days <= 1
-      ? 1
-      : days <= 10
-        ? days
-        : days <= 180
-          ? Math.ceil(days / 30)
-          : days <= 365
-            ? 1
-            : 5;
-  const endDate = Date.now();
-  const params: PriceHistoryParams = {
-    symbol,
-    periodType,
-    period,
-    frequencyType,
-    frequency,
-    endDate,
-    needExtendedHoursData: days <= 1,
-  };
-
-  const queryString = Object.entries(params)
-    .filter(([_, value]) => value !== undefined)
-    .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-    .join("&");
-
-  const token = await getSchwabToken();
-  const response = await fetch(
-    `https://api.schwabapi.com/marketdata/v1/pricehistory?${queryString}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch stock history");
-  }
-
-  const data: PriceHistoryResponse = await response.json();
-
-  if (data.empty) {
-    return [];
-  }
-
-  return (
-    data.candles
-      .map(({ datetime, close }) => ({ timestamp: datetime, price: close }))
-      .sort((a, b) => a.timestamp - b.timestamp)
-      // Filter out duplicates, keeping first occurrence if any
-      .filter(
-        (candle, index, array) =>
-          array.findIndex((c) => c.timestamp === candle.timestamp) === index,
-      )
-  );
-}
-
 export async function fetchPriceHistory({
   symbol,
   isCrypto,
@@ -308,7 +170,7 @@ export async function fetchPriceHistory({
       if (!cryptoId) throw new Error("Crypto ID is required for crypto assets");
       return await fetchCryptoPriceHistory(cryptoId, days);
     } else {
-      return await fetchStockPriceHistory(
+      return await fetchSchwabPriceHistory(
         symbol,
         days,
         frequency,

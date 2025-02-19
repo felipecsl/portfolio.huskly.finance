@@ -1,7 +1,7 @@
-import { ParsedPortfolio, fetchSchwabAccounts } from "@/lib/schwabData";
+import { fetchSchwabAccounts } from "@/lib/schwabApi";
 import { Portfolio } from "@/types/crypto";
 import { useEffect, useState } from "react";
-
+import { ParsedPortfolio } from "@/types/schwab";
 const STORAGE_KEY = "portfolios";
 
 export function usePortfolios() {
