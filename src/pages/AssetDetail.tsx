@@ -11,6 +11,7 @@ import {
 } from "lightweight-charts";
 import { useEffect, useRef, useState } from "react";
 import { cacheGet, cacheSet } from "@/lib/cache";
+import { startOfYear, differenceInBusinessDays } from "date-fns";
 import {
   fetchPriceHistory,
   fetchStockQuotes,
@@ -35,6 +36,12 @@ const CHART_PERIODS: ChartPeriod[] = [
   { days: 5, label: "5D", frequency: 30, frequencyType: "minute" },
   { days: 30, label: "1M", frequency: 1, frequencyType: "daily" },
   { days: 180, label: "6M", frequency: 1, frequencyType: "daily" },
+  {
+    days: differenceInBusinessDays(new Date(), startOfYear(new Date())) + 1,
+    label: "YTD",
+    frequency: 1,
+    frequencyType: "daily",
+  },
   { days: 365, label: "1Y", frequency: 1, frequencyType: "daily" },
   { days: 365 * 5, label: "5Y", frequency: 1, frequencyType: "weekly" },
 ];
