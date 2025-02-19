@@ -47,7 +47,7 @@ export const AssetTypeTable = ({
       className="mb-8 brutal-border bg-stone-900 rounded-lg overflow-hidden text-gray-300"
       onClick={() => setIsExpanded(!isExpanded)}
     >
-      <div className="p-6 flex justify-between items-start">
+      <div className="p-6 flex justify-between items-start cursor-pointer">
         <div>
           <h2 className="text-2xl font-medium text-white">{title}</h2>
           <p className="text-gray-400">

@@ -4,6 +4,7 @@ import { SchwabAccountTable } from "@/components/SchwabAccountTable";
 import { usePortfolios } from "@/hooks/usePortfolios";
 import { useCallback, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { Logo } from "@/components/Logo";
 
 export interface StockProfile {
   name: string;
@@ -46,8 +47,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen p-8 bg-zinc-800">
-      <div className="w-full max-w-6xl mx-auto">
-        <div className="mb-8 flex justify-end">
+      <div className="w-full max-w-4xl mx-auto">
+        <div className="mb-8 flex justify-between items-center">
+          <Logo />
           <Link
             to="/transactions"
             className="px-4 py-2 text-white bg-stone-900 rounded-lg border border-gray-950 hover:bg-stone-800 transition-colors"
