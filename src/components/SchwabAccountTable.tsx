@@ -4,8 +4,16 @@ import { useState } from "react";
 import { AssetList } from "./AssetList";
 import { PercentageChange } from "./PercentageChange";
 
-export const SchwabAccountTable = ({ account }: SchwabAccountTableProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+interface SchwabAccountTableProps {
+  account: ParsedPortfolio;
+  isExpanded?: boolean;
+}
+
+export const SchwabAccountTable = ({
+  account,
+  isExpanded = false,
+}: SchwabAccountTableProps) => {
+  const [expanded, setExpanded] = useState(isExpanded);
 
   const totalValue = account.positions.reduce(
     (sum, position) => sum + position.value,
@@ -25,7 +33,7 @@ export const SchwabAccountTable = ({ account }: SchwabAccountTableProps) => {
     <div className="mb-8 brutal-border bg-stone-900 rounded-lg overflow-hidden text-gray-300">
       <div
         className="p-6 cursor-pointer"
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={() => setExpanded(!expanded)}
       >
         <div className="flex justify-between items-start">
           <div>
@@ -47,14 +55,10 @@ export const SchwabAccountTable = ({ account }: SchwabAccountTableProps) => {
         </div>
       </div>
 
-      {isExpanded && <AssetList assets={account.positions} />}
+      {expanded && <AssetList assets={account.positions} />}
     </div>
   );
 };
-
-export interface SchwabAccountTableProps {
-  account: ParsedPortfolio;
-}
 
 function obfuscateAccountNumber(accountNumber: string): string {
   // replace every characted except the last 4 with *

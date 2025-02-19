@@ -45,7 +45,7 @@ export function cacheGet<T>(key: string): T | null {
 export function cacheSet<T>(
   key: string,
   data: T,
-  expirationInSeconds: number = CACHE_DURATION,
+  expirationInSeconds = CACHE_DURATION,
 ): T {
   try {
     const entry: CacheEntry<T> = {

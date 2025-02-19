@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "prepare": "husky",
     "typecheck": "tsc --noEmit",
-    "prettier": "prettier --check ."
+    "prettier": "prettier --check .",
+    "prettier_fix": "prettier --write ."
   },
   "dependencies": {
     "@fontsource/space-grotesk": "^5.1.1",
@@ -79,6 +80,7 @@
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.9.0",
+    "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",

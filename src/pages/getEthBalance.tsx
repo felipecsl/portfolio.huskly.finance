@@ -18,8 +18,7 @@ export async function getEthBalance(address: string): Promise<number> {
   if (data.status === "1" && data.message === "OK") {
     // Convert wei to ETH (1 ETH = 10^18 wei)
     const balance = Number(data.result) / 1e18;
-    // Cache the result
-    cacheSet(cacheKey, balance);
+    cacheSet(cacheKey, balance, 60);
     return balance;
   }
   throw new Error("Failed to fetch ETH balance");

@@ -74,7 +74,6 @@ const AssetDetail = () => {
     queryFn: async () => {
       if (!symbol) throw new Error("Symbol is required");
 
-      // Try to get from cache first
       const cacheKey = `asset:${symbol}`;
       const cachedData = cacheGet<AssetResponse>(cacheKey);
       if (cachedData) {
@@ -87,20 +86,18 @@ const AssetDetail = () => {
         } else {
           const quotes = await fetchStockQuotes([symbol]);
           const quote = quotes.get(symbol);
-
           if (!quote) {
             throw new Error(`No quote data found for ${symbol}`);
           }
-
           const result: AssetResponse = {
-            symbol: symbol,
+            symbol,
             name: quote.name || symbol,
             price: quote.c,
             changePercent24h: quote.dp,
             type: "stock",
           };
-
-          return cacheSet(cacheKey, result);
+          // 1 minute expiration
+          return cacheSet(cacheKey, result, 60);
         }
       } catch (error) {
         console.error("Error fetching asset:", error);
@@ -135,7 +132,7 @@ const AssetDetail = () => {
           frequency: selectedPeriod.frequency,
           frequencyType: selectedPeriod.frequencyType,
         });
-        return cacheSet(cacheKey, result);
+        return cacheSet(cacheKey, result, 60);
       } catch (error) {
         console.error("Error fetching history:", error);
         throw error;

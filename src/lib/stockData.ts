@@ -63,7 +63,6 @@ export async function fetchStockQuotes(
 ): Promise<Map<string, StockQuote>> {
   const quotes = new Map<string, StockQuote>();
   const symbolsToFetch: string[] = [];
-
   // First check cache for each symbol
   for (const symbol of symbols) {
     const cachedQuote = cacheGet<StockQuote>(`stock-quote-${symbol}`);
@@ -88,11 +87,8 @@ export async function fetchStockQuotes(
               quoteData.quote.netPercentChange,
             name: capitalizeCompanyName(quoteData.reference.description),
           };
-
-          // Cache the quote
-          const quoteCacheKey = `stock-quote-${symbol}`;
-          cacheSet(quoteCacheKey, quote);
-
+          // 1 minute expiration
+          cacheSet(`stock-quote-${symbol}`, quote, 60);
           quotes.set(symbol, quote);
         } else {
           // If symbol not found in response, try Yahoo fallback for mutual funds

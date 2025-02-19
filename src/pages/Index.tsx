@@ -67,10 +67,13 @@ const Index = () => {
         </div>
 
         {sortedSchwabAccounts.map((account, i) => (
-          <SchwabAccountTable
+          <Link
             key={`${account.accountNumber}-${i}`}
-            account={account}
-          />
+            to={`/account/${account.accountNumber}`}
+            className="block mb-4 hover:opacity-90 transition-opacity"
+          >
+            <SchwabAccountTable account={account} isExpanded={false} />
+          </Link>
         ))}
 
         <PortfolioList
