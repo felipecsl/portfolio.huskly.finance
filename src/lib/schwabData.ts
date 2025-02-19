@@ -44,6 +44,7 @@ export interface ParsedPosition {
 }
 
 export interface ParsedPortfolio {
+  accountNumber: string;
   positions: ParsedPosition[];
   liquidationValue: number;
   availableFunds: number;
@@ -51,47 +52,44 @@ export interface ParsedPortfolio {
   cashBalance: number;
 }
 
-export function parseSchwabData(data: SchwabAccount[]): ParsedPortfolio {
+export function parseSchwabAccounts(data: SchwabAccount[]): ParsedPortfolio[] {
   if (!data || !data.length) {
-    return {
-      positions: [],
-      liquidationValue: 0,
-      availableFunds: 0,
-      buyingPower: 0,
-      cashBalance: 0,
-    };
+    return [];
   }
 
-  const account = data[0].securitiesAccount;
-  const positions = account.positions || [];
+  return data.map((account) => {
+    const positions = account.securitiesAccount.positions || [];
 
-  const parsedPositions: ParsedPosition[] = positions
-    .filter((pos) => pos.longQuantity > 0 || pos.shortQuantity > 0) // Filter out zero-quantity positions
-    .map((position) => {
-      const quantity = position.longQuantity - position.shortQuantity;
+    const parsedPositions: ParsedPosition[] = positions
+      .filter((pos) => pos.longQuantity > 0 || pos.shortQuantity > 0) // Filter out zero-quantity positions
+      .map((position) => {
+        const quantity = position.longQuantity - position.shortQuantity;
 
-      return {
-        symbol:
-          position.instrument.assetType === "EQUITY"
-            ? position.instrument.symbol
-            : position.instrument.symbol.split(" ")[0],
-        name: position.instrument.description || position.instrument.symbol,
-        amount: quantity,
-        priceUsd: position.averagePrice.toFixed(2),
-        value: position.marketValue,
-        changePercent24Hr: position.currentDayProfitLossPercentage.toFixed(2),
-        id: position.instrument.cusip,
-        type: "stock" as const,
-      };
-    });
+        return {
+          symbol:
+            position.instrument.assetType === "EQUITY"
+              ? position.instrument.symbol
+              : position.instrument.symbol.split(" ")[0],
+          name: position.instrument.description || position.instrument.symbol,
+          amount: quantity,
+          priceUsd: position.averagePrice.toFixed(2),
+          value: position.marketValue,
+          changePercent24Hr: position.currentDayProfitLossPercentage.toFixed(2),
+          id: position.instrument.cusip,
+          type: "stock" as const,
+        };
+      });
 
-  return {
-    positions: parsedPositions,
-    liquidationValue: account.currentBalances.liquidationValue,
-    availableFunds: account.currentBalances.availableFunds,
-    buyingPower: account.currentBalances.buyingPower,
-    cashBalance: account.currentBalances.cashBalance,
-  };
+    return {
+      accountNumber: account.securitiesAccount.accountNumber,
+      positions: parsedPositions,
+      liquidationValue:
+        account.securitiesAccount.currentBalances.liquidationValue,
+      availableFunds: account.securitiesAccount.currentBalances.availableFunds,
+      buyingPower: account.securitiesAccount.currentBalances.buyingPower,
+      cashBalance: account.securitiesAccount.currentBalances.cashBalance,
+    };
+  });
 }
 
 // Helper function to format currency values
@@ -102,22 +100,30 @@ export function formatCurrency(value: number): string {
   }).format(value);
 }
 
-export async function fetchSchwabData(): Promise<ParsedPortfolio> {
-  try {
-    const token = await getSchwabToken();
-    const response = await fetch(
-      "https://api.schwabapi.com/trader/v1/accounts?fields=positions",
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
-    const data = await response.json();
-    return parseSchwabData(data);
-  } catch (error) {
-    console.error("Error fetching Schwab data:", error);
-    throw error;
-  }
+export async function fetchSchwabAccounts(): Promise<ParsedPortfolio[]> {
+  return (
+    (await cacheFetch<ParsedPortfolio[]>(
+      "schwab-accounts",
+      async () => {
+        try {
+          const token = await getSchwabToken();
+          const response = await fetch(
+            "https://api.schwabapi.com/trader/v1/accounts?fields=positions",
+            { headers: { Authorization: `Bearer ${token}` } },
+          );
+          const data = await response.json();
+          return parseSchwabAccounts(data);
+        } catch (error) {
+          console.error("Error fetching Schwab data:", error);
+          throw error;
+        }
+      },
+      60, // 1 minute
+    )) || []
+  );
 }
 
-export async function getSchwabToken(): Promise<string> {
+export async function getSchwabToken(): Promise<string | null> {
   return await cacheFetch<string>(
     "schwab-token",
     async () => {

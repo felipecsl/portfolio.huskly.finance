@@ -10,7 +10,7 @@ import {
   AreaSeries,
 } from "lightweight-charts";
 import { useEffect, useRef, useState } from "react";
-import { getFromCache, setCache } from "@/lib/cache";
+import { cacheGet, cacheSet } from "@/lib/cache";
 import {
   fetchPriceHistory,
   fetchStockQuotes,
@@ -61,7 +61,7 @@ const AssetDetail = () => {
 
       // Try to get from cache first
       const cacheKey = `asset:${symbol}`;
-      const cachedData = getFromCache<AssetResponse>(cacheKey);
+      const cachedData = cacheGet<AssetResponse>(cacheKey);
       if (cachedData) {
         return cachedData;
       }
@@ -87,7 +87,7 @@ const AssetDetail = () => {
             type: "crypto",
           };
 
-          return setCache(cacheKey, result);
+          return cacheSet(cacheKey, result);
         } else {
           // Fetch stock data using new batch quotes function
           const quotes = await fetchStockQuotes([symbol]);
@@ -105,7 +105,7 @@ const AssetDetail = () => {
             type: "stock",
           };
 
-          return setCache(cacheKey, result);
+          return cacheSet(cacheKey, result);
         }
       } catch (error) {
         console.error("Error fetching asset:", error);
@@ -124,7 +124,7 @@ const AssetDetail = () => {
 
       // Try to get from cache first
       const cacheKey = `asset-history:${symbol}:${selectedPeriod.days}`;
-      const cachedData = getFromCache<PriceDataPoint[]>(cacheKey);
+      const cachedData = cacheGet<PriceDataPoint[]>(cacheKey);
       if (cachedData) {
         return cachedData;
       }
@@ -140,7 +140,7 @@ const AssetDetail = () => {
           frequency: selectedPeriod.frequency,
           frequencyType: selectedPeriod.frequencyType,
         });
-        return setCache(cacheKey, result);
+        return cacheSet(cacheKey, result);
       } catch (error) {
         console.error("Error fetching history:", error);
         throw error;

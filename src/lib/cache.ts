@@ -9,20 +9,20 @@ export async function cacheFetch<T>(
   key: string,
   fetchFunction: () => Promise<T>,
   expirationInSeconds: number = CACHE_DURATION,
-): Promise<T> {
-  const cached = getFromCache<T>(key);
+): Promise<T | null> {
+  const cached = cacheGet<T>(key);
   if (cached) return Promise.resolve(cached);
 
   try {
     const result = await fetchFunction();
-    return setCache(key, result, expirationInSeconds);
+    return cacheSet(key, result, expirationInSeconds);
   } catch (error) {
     console.error("Cache fetch error:", error);
     throw error;
   }
 }
 
-export function getFromCache<T>(key: string): T | null {
+export function cacheGet<T>(key: string): T | null {
   try {
     const cached = localStorage.getItem(key);
     if (!cached) return null;
@@ -31,7 +31,7 @@ export function getFromCache<T>(key: string): T | null {
     const now = Math.floor(Date.now() / 1000);
 
     if (now >= entry.expiresAt) {
-      removeFromCache(key);
+      cacheRemove(key);
       return null;
     }
 
@@ -42,7 +42,7 @@ export function getFromCache<T>(key: string): T | null {
   }
 }
 
-export function setCache<T>(
+export function cacheSet<T>(
   key: string,
   data: T,
   expirationInSeconds: number = CACHE_DURATION,
@@ -60,7 +60,7 @@ export function setCache<T>(
   }
 }
 
-export function removeFromCache(key: string) {
+export function cacheRemove(key: string) {
   try {
     localStorage.removeItem(key);
   } catch (error) {

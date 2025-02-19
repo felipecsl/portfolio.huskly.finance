@@ -1,4 +1,4 @@
-import { ParsedPortfolio, fetchSchwabData } from "@/lib/schwabData";
+import { ParsedPortfolio, fetchSchwabAccounts } from "@/lib/schwabData";
 import { Portfolio } from "@/types/crypto";
 import { useEffect, useState } from "react";
 
@@ -9,17 +9,15 @@ export function usePortfolios() {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : [];
   });
-  const [schwabPortfolio, setSchwabPortfolio] =
-    useState<ParsedPortfolio | null>(null);
+  const [schwabAccounts, setSchwabAccounts] = useState<ParsedPortfolio[]>([]);
 
   // Save to localStorage whenever portfolios change
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(portfolios));
   }, [portfolios]);
 
-  // Fetch Schwab data when component mounts
   useEffect(() => {
-    fetchSchwabData().then(setSchwabPortfolio);
+    fetchSchwabAccounts().then(setSchwabAccounts);
   }, []);
 
   const addPortfolio = (portfolio: Portfolio) => {
@@ -41,7 +39,7 @@ export function usePortfolios() {
 
   return {
     portfolios,
-    schwabPortfolio,
+    schwabAccounts,
     addPortfolio,
     removePortfolio,
   };

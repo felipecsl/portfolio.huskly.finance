@@ -22,7 +22,7 @@ export function PortfolioCard({
 
   return (
     <div
-      className="p-6 bg-stone-800 text-gray-200 dark:bg-stone-800 hover:bg-stone-900 dark:text-brutal-white border-gray-950 border rounded drop-shadow-lg cursor-pointer"
+      className="p-6 bg-stone-800 text-gray-200 bg-stone-900 dark:text-brutal-white border-gray-950 border rounded drop-shadow-lg cursor-pointer"
       onClick={() => setIsExpanded(!isExpanded)}
     >
       <div className="flex justify-between items-start">

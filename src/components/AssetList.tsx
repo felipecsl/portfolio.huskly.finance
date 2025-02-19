@@ -47,7 +47,11 @@ export const AssetList = ({ assets }: AssetListProps) => {
     return holding ? Number(holding.amount.toFixed(3)) : 0;
   };
 
-  const handleSort = (field: SortField) => {
+  const handleSort = (
+    e: React.MouseEvent<HTMLTableCellElement>,
+    field: SortField,
+  ) => {
+    e.stopPropagation();
     if (sortField === field) {
       // If clicking the same field, toggle direction
       const newDirection = sortDirection === "asc" ? "desc" : "asc";
@@ -103,7 +107,7 @@ export const AssetList = ({ assets }: AssetListProps) => {
   const renderHeaderCell = (field: SortField, label: string) => (
     <th
       className="p-2 text-left cursor-pointer hover:bg-gray-500 text-right"
-      onClick={() => handleSort(field)}
+      onClick={(e) => handleSort(e, field)}
     >
       {label}
       <SortIcon field={field} />
@@ -136,11 +140,11 @@ export const AssetList = ({ assets }: AssetListProps) => {
             </tr>
           </thead>
           <tbody>
-            {getSortedAssets().map((asset) => {
+            {getSortedAssets().map((asset, i) => {
               const value = calculateHoldingValue(asset);
               return (
                 <tr
-                  key={asset.id}
+                  key={`${asset.id}-${i}`}
                   className="p-2 text-sm hover:bg-stone-700 cursor-pointer bg-stone-800 border-b border-gray-950"
                   onClick={() => navigate(`/asset/${asset.symbol}`)}
                 >

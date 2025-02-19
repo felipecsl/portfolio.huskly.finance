@@ -24,8 +24,10 @@ export function CommandPalette() {
       }
 
       try {
+        const token = import.meta.env.VITE_FINNHUB_API_KEY;
+        const searchQuery = encodeURIComponent(query);
         const response = await fetch(
-          `https://finnhub.io/api/v1/search?q=${encodeURIComponent(query)}&token=${import.meta.env.VITE_FINNHUB_API_KEY}&exchange=US`,
+          `https://finnhub.io/api/v1/search?q=${searchQuery}&token=${token}&exchange=US`,
         );
         const data = await response.json();
         setResults(data.result?.slice(0, 10) || []); // Limit to top 10 results

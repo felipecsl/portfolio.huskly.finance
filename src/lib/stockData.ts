@@ -1,5 +1,5 @@
 import { Asset } from "@/types/crypto";
-import { getFromCache, setCache } from "./cache";
+import { cacheGet, cacheSet } from "./cache";
 import { isEmpty } from "lodash";
 import { fetchCryptoPriceHistory } from "./cryptoData";
 import { getSchwabToken } from "./schwabData";
@@ -87,7 +87,7 @@ export async function fetchStockQuotes(
 
   // First check cache for each symbol
   for (const symbol of symbols) {
-    const cachedQuote = getFromCache<StockQuote>(`stock-quote-${symbol}`);
+    const cachedQuote = cacheGet<StockQuote>(`stock-quote-${symbol}`);
     if (cachedQuote) {
       quotes.set(symbol, cachedQuote);
     } else {
@@ -130,7 +130,7 @@ export async function fetchStockQuotes(
 
           // Cache the quote
           const quoteCacheKey = `stock-quote-${symbol}`;
-          setCache(quoteCacheKey, quote);
+          cacheSet(quoteCacheKey, quote);
 
           quotes.set(symbol, quote);
         } else {
