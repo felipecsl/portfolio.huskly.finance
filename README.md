@@ -1,15 +1,20 @@
-# Huskly Portfolio
+# Huskly Schwab Portfolio
 
-Self-hosted clone of [Google Finance](https://www.google.com/finance), designed to help users manage and track their investment portfolios without relying on Google.
+Self-hosted clone of [Google Finance](https://www.google.com/finance), designed for
+Charles Schwab customers to help them manage and track their investment portfolios.
 You can access the live application at https://portfolio.huskly.finance.
 
 # Features
+
+## Charles Schwab API integration
+
+Allows fetching account details and transaction history from [Charles Schwab](https://www.schwab.com/).
 
 ## Asset Search
 
 Search for an asset anywhere with `^+K` or `⌘+K`.
 
-## Portfolio Management
+## Google Takeout Portfolio Import
 
 Import your investment portfolios from [Google Takeout](https://takeout.google.com/) by selecting "Google Finance" in the "Takeout Data" section.
 Download and decompress the generated zip file.
@@ -28,6 +33,10 @@ using the Schwab API.
 
 Supports equities, crypto, ETFs, mutual funds and more.
 Displays a chart with the price history, current price, and percentage change.
+
+## Transaction History
+
+Allows displaying and filtering through all transactions across all accounts.
 
 ## Building and running locally
 
