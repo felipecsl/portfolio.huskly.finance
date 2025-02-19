@@ -1,5 +1,5 @@
 import { Trade } from "@/types/trades";
-import { cacheFetch } from "./cache";
+import { cacheFetch, cacheRemove } from "./cache";
 import { startOfYear, format } from "date-fns";
 import type {
   SchwabAccount,
@@ -73,6 +73,11 @@ async function fetchSchwabApi<T>(
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      // delete cached and expired token from cache
+      cacheRemove("schwab-token");
+      throw new Error("Failed to fetch Schwab token");
+    }
     throw new Error(`Failed to fetch ${endpoint}: ${response.statusText}`);
   }
 
