@@ -28,20 +28,20 @@ export function PortfolioList({
 
   const handleValueUpdate = useCallback(
     (portfolioName: string, value: number) => {
-      setPortfolioValues((prev) => {
-        // Only update if the value has changed
-        if (prev[portfolioName] === value) {
-          return prev;
-        }
-        onValueUpdate(portfolioName, value);
-        return {
-          ...prev,
-          [portfolioName]: value,
-        };
-      });
+      setPortfolioValues((prev) => ({
+        ...prev,
+        [portfolioName]: value,
+      }));
     },
-    [onValueUpdate],
-  ); // No dependencies needed since we're using the function form of setState
+    [],
+  );
+
+  // Use effect to call onValueUpdate when portfolioValues changes
+  useEffect(() => {
+    Object.entries(portfolioValues).forEach(([name, value]) => {
+      onValueUpdate(name, value);
+    });
+  }, [portfolioValues, onValueUpdate]);
 
   return sortedPortfolios.map((portfolio) => (
     <PortfolioCardWrapper
