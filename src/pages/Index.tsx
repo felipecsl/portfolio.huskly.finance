@@ -17,6 +17,10 @@ const Index = () => {
     Record<string, number>
   >({});
 
+  const sortedSchwabAccounts = [...schwabAccounts].sort((a, b) => {
+    return b.liquidationValue - a.liquidationValue;
+  });
+
   const handleValueUpdate = useCallback(
     (portfolioName: string, value: number) => {
       setPortfolioValues((prev) => {
@@ -38,7 +42,7 @@ const Index = () => {
       Object.values(portfolioValues).reduce((sum, value) => sum + value, 0) +
       schwabAccounts.reduce((sum, account) => sum + account.liquidationValue, 0)
     );
-  }, [portfolioValues]);
+  }, [portfolioValues, schwabAccounts]);
 
   return (
     <div className="min-h-screen p-8 bg-zinc-800">
@@ -62,7 +66,7 @@ const Index = () => {
           </h2>
         </div>
 
-        {schwabAccounts.map((account, i) => (
+        {sortedSchwabAccounts.map((account, i) => (
           <SchwabAccountTable
             key={`${account.accountNumber}-${i}`}
             account={account}

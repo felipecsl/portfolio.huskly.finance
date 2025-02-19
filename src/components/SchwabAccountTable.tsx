@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { PercentageChange } from "./PercentageChange";
 
 export const SchwabAccountTable = ({ account }: SchwabAccountTableProps) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
 
   const totalValue = account.positions.reduce(
@@ -43,12 +43,11 @@ export const SchwabAccountTable = ({ account }: SchwabAccountTableProps) => {
             <p className="text-gray-400">{account.positions.length} holdings</p>
           </div>
           <div className="text-right">
-            <div className="text-sm text-gray-400 mb-1">Total Value</div>
             <div className="text-2xl font-medium text-white">
               {formatPrice(account.liquidationValue)}
             </div>
             {account.positions.length > 0 && (
-              <div className="mt-1">
+              <div className="mt-4">
                 <PercentageChange value={totalDayChange} />
               </div>
             )}

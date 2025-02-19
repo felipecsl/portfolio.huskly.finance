@@ -40,7 +40,7 @@ export function PortfolioList({
         };
       });
     },
-    [],
+    [onValueUpdate],
   ); // No dependencies needed since we're using the function form of setState
 
   return sortedPortfolios.map((portfolio) => (

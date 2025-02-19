@@ -123,12 +123,12 @@ export const AssetList = ({ assets }: AssetListProps) => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onClick={(e) => e.stopPropagation()}
-          className="brutal-border px-4 py-3 w-full bg-gray-600 text-brutal-black dark:bg-gray-300 dark:text-gray-900 text-lg rounded drop-shadow-lg"
+          className="brutal-border px-4 py-3 w-full bg-gray-600 text-brutal-black dark:bg-gray-300 dark:text-gray-900 text-lg"
         />
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full border drop-shadow-lg rounded-lg border-gray-950">
+        <table className="w-full">
           <thead>
             <tr className="border-b border-brutal-black dark:border-brutal-white p-2 rounded-t-lg">
               {renderHeaderCell("symbol", "Symbol")}
@@ -145,7 +145,7 @@ export const AssetList = ({ assets }: AssetListProps) => {
               return (
                 <tr
                   key={`${asset.id}-${i}`}
-                  className="p-2 text-sm hover:bg-stone-700 cursor-pointer bg-stone-800 border-b border-gray-950"
+                  className="border-b border-gray-800 hover:bg-stone-800 cursor-pointer"
                   onClick={() => navigate(`/asset/${asset.symbol}`)}
                 >
                   <td className="p-4">{asset.symbol}</td>

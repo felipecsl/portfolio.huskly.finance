@@ -22,10 +22,10 @@ export function PortfolioCard({
 
   return (
     <div
-      className="p-6 mb-8 bg-stone-800 text-gray-200 bg-stone-900 dark:text-brutal-white border-gray-950 border rounded drop-shadow-lg cursor-pointer"
+      className="mb-8 brutal-border bg-stone-900 rounded-lg overflow-hidden text-gray-300 cursor-pointer"
       onClick={() => setIsExpanded(!isExpanded)}
     >
-      <div className="flex justify-between items-start">
+      <div className="px-6 pt-6 flex justify-between items-start">
         <div>
           <h2 className="text-2xl font-medium">{name}</h2>
           <p className="text-gray-400">{assets.length} holdings</p>
@@ -56,7 +56,7 @@ export function PortfolioCard({
         </div>
       </div>
 
-      <div className="flex gap-4">
+      <div className="px-6 pb-6 flex gap-4">
         <button
           onClick={onRemove}
           className="px-3 py-1 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30"
