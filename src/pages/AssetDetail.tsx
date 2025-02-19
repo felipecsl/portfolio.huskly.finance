@@ -20,8 +20,8 @@ import {
   cryptoSymbols,
   isCrypto,
   fetchCryptoAssetDetails,
-  type CryptoAssetResponse,
 } from "@/lib/cryptoData";
+import { CryptoAssetResponse } from "@/types/crypto";
 
 interface ChartPeriod {
   days: number;
