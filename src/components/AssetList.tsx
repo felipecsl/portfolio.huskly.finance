@@ -105,16 +105,18 @@ export const AssetList = ({ assets }: AssetListProps) => {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
-      <div className="flex flex-col gap-4 my-4">
-        <input
-          type="text"
-          placeholder="Search by symbol..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onClick={(e) => e.stopPropagation()}
-          className="brutal-border px-4 py-3 w-full bg-gray-600 text-brutal-black dark:bg-gray-300 dark:text-gray-900 text-lg"
-        />
+    <div className="w-full max-w-4xl mx-auto">
+      <div className="flex flex-col gap-4 p-6 items-center">
+        <div className="w-1/2">
+          <input
+            type="text"
+            placeholder="Filter by symbol..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onClick={(e) => e.stopPropagation()}
+            className="brutal-border px-4 py-3 w-full rounded bg-gray-600 text-brutal-black dark:bg-gray-300 dark:text-gray-900 text-lg"
+          />
+        </div>
       </div>
 
       <div className="overflow-x-auto">

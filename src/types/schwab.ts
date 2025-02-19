@@ -59,7 +59,7 @@ export interface ParsedPosition {
   value: number;
   changePercent24Hr: string;
   id: string;
-  type: "stock";
+  type: "stock" | "option";
 }
 
 export interface ParsedPortfolio {

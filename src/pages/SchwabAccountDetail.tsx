@@ -1,4 +1,4 @@
-import { SchwabAccountTable } from "@/components/SchwabAccountTable";
+import { AssetTypeTable } from "@/components/AssetTypeTable";
 import { usePortfolios } from "@/hooks/usePortfolios";
 import { Link, useParams } from "react-router-dom";
 
@@ -13,7 +13,7 @@ const SchwabAccountDetail = () => {
   if (!account) {
     return (
       <div className="min-h-screen p-8 bg-zinc-800">
-        <div className="w-full max-w-6xl mx-auto">
+        <div className="w-full max-w-4xl mx-auto">
           <div className="mb-8">
             <Link
               to="/"
@@ -30,7 +30,7 @@ const SchwabAccountDetail = () => {
 
   return (
     <div className="min-h-screen p-8 bg-zinc-800">
-      <div className="w-full max-w-6xl mx-auto">
+      <div className="w-full max-w-4xl mx-auto">
         <div className="mb-8">
           <Link
             to="/"
@@ -39,7 +39,18 @@ const SchwabAccountDetail = () => {
             ← Back to Portfolio
           </Link>
         </div>
-        <SchwabAccountTable account={account} isExpanded={true} />
+        <AssetTypeTable
+          positions={account.positions}
+          type="stock"
+          title="Equities"
+          itemLabel="holdings"
+        />
+        <AssetTypeTable
+          positions={account.positions}
+          type="option"
+          title="Options"
+          itemLabel="positions"
+        />
       </div>
     </div>
   );

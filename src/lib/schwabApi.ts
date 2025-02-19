@@ -23,19 +23,19 @@ function parseSchwabAccounts(data: SchwabAccount[]): ParsedPortfolio[] {
       .filter((pos) => pos.longQuantity > 0 || pos.shortQuantity > 0) // Filter out zero-quantity positions
       .map((position) => {
         const quantity = position.longQuantity - position.shortQuantity;
+        const isOption = position.instrument.assetType === "OPTION";
 
         return {
-          symbol:
-            position.instrument.assetType === "EQUITY"
-              ? position.instrument.symbol
-              : position.instrument.symbol.split(" ")[0],
+          symbol: isOption
+            ? position.instrument.symbol.split(" ")[0]
+            : position.instrument.symbol,
           name: position.instrument.description || position.instrument.symbol,
           amount: quantity,
           priceUsd: position.averagePrice.toFixed(2),
           value: position.marketValue,
           changePercent24Hr: position.currentDayProfitLossPercentage.toFixed(2),
           id: position.instrument.cusip,
-          type: "stock" as const,
+          type: isOption ? "option" : "stock",
         };
       });
 
