@@ -1,4 +1,6 @@
+import { Trade } from "@/types/trades";
 import { cacheFetch } from "./cache";
+import { startOfYear, format } from "date-fns";
 
 interface SchwabPosition {
   shortQuantity: number;
@@ -144,4 +146,82 @@ export async function getSchwabToken(): Promise<string | null> {
     },
     900, // 15 minutes
   );
+}
+
+export async function fetchAccountNumbers(): Promise<
+  { accountNumber: string; hashValue: string }[]
+> {
+  return (
+    (await cacheFetch<{ accountNumber: string; hashValue: string }[]>(
+      "schwab-account-numbers",
+      async () => {
+        try {
+          const token = await getSchwabToken();
+          const response = await fetch(
+            "https://api.schwabapi.com/trader/v1/accounts/accountNumbers",
+            { headers: { Authorization: `Bearer ${token}` } },
+          );
+          if (!response.ok) {
+            throw new Error(
+              `Failed to fetch account numbers: ${response.statusText}`,
+            );
+          }
+          return await response.json();
+        } catch (error) {
+          console.error("Error fetching account numbers:", error);
+          throw error;
+        }
+      },
+      60 * 60 * 12, // 12 hours cache duration
+    )) || []
+  );
+}
+
+export async function fetchTransactionHistory(
+  startDate: Date = startOfYear(new Date()),
+  endDate: Date = new Date(),
+): Promise<{ accountNumber: string; transactions: Trade[] }[]> {
+  const accountNumbers = await fetchAccountNumbers();
+  const transactionHistory = await Promise.all(
+    accountNumbers.map((account) =>
+      fetchAccountTransactionHistory(account.hashValue, startDate, endDate),
+    ),
+  );
+  return transactionHistory.map((transactions, index) => ({
+    accountNumber: accountNumbers[index].accountNumber,
+    transactions,
+  }));
+}
+
+export async function fetchAccountTransactionHistory(
+  accountHash: string,
+  startDate: Date = startOfYear(new Date()),
+  endDate: Date = new Date(),
+): Promise<Trade[]> {
+  try {
+    const token = await getSchwabToken();
+
+    // Format dates to ISO string with milliseconds
+    const formattedStartDate = format(
+      startDate,
+      "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+    );
+    const formattedEndDate = format(endDate, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+    const response = await fetch(
+      `https://api.schwabapi.com/trader/v1/accounts/${accountHash}/transactions?startDate=${formattedStartDate}&endDate=${formattedEndDate}`,
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch account transactions: ${response.statusText}`,
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching transaction history:", error);
+    throw error;
+  }
 }
