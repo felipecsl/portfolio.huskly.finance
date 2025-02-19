@@ -1,7 +1,7 @@
 # Huskly Schwab Portfolio
 
-Self-hosted clone of [Google Finance](https://www.google.com/finance), designed for
-Charles Schwab customers to help them manage and track their investment portfolios.
+Self-hosted alternative to [Google Finance](https://www.google.com/finance), designed for
+Charles Schwab customers to help them manage and track their accounts and investment portfolios.
 You can access the live application at https://portfolio.huskly.finance.
 
 # Features
