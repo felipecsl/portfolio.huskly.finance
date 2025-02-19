@@ -167,9 +167,7 @@ export async function fetchSchwabQuotes(
   symbols: string[],
 ): Promise<SchwabQuoteResponse> {
   const symbolList = symbols.join(",");
-  return await fetchSchwabApi(
-    `/marketdata/v1/quotes?symbols=${symbolList}&fields=quote%2Creference&indicative=false`,
-  );
+  return await fetchSchwabApi(`/marketdata/v1/quotes?symbols=${symbolList}`);
 }
 
 export async function fetchSchwabPriceHistory(
