@@ -1,3 +1,4 @@
+import { AccountSummary } from "@/components/AccountSummary";
 import { AssetTypeTable } from "@/components/AssetTypeTable";
 import { usePortfolios } from "@/hooks/usePortfolios";
 import { Link, useParams } from "react-router-dom";
@@ -39,6 +40,7 @@ const SchwabAccountDetail = () => {
             ← Back to Portfolio
           </Link>
         </div>
+        <AccountSummary account={account} />
         <AssetTypeTable
           positions={account.positions}
           type="stock"

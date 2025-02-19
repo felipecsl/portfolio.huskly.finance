@@ -2,20 +2,24 @@ import { ParsedPosition } from "@/types/schwab";
 import { AssetList } from "./AssetList";
 import { PercentageChange } from "./PercentageChange";
 import { formatPrice } from "@/lib/utils/format";
+import { useState } from "react";
 
 interface AssetTypeTableProps {
   positions: ParsedPosition[];
   type: "stock" | "option";
   title: string;
   itemLabel?: string;
+  expanded?: boolean;
 }
 
 export const AssetTypeTable = ({
   positions,
   type,
   title,
+  expanded = true,
   itemLabel = "holdings",
 }: AssetTypeTableProps) => {
+  const [isExpanded, setIsExpanded] = useState(expanded);
   const filteredPositions = positions.filter(
     (position) => position.type === type,
   );
@@ -39,8 +43,11 @@ export const AssetTypeTable = ({
     100;
 
   return (
-    <div className="mb-8 brutal-border bg-stone-900 rounded-lg overflow-hidden text-gray-300">
-      <div className="px-6 pt-6 flex justify-between items-start">
+    <div
+      className="mb-8 brutal-border bg-stone-900 rounded-lg overflow-hidden text-gray-300"
+      onClick={() => setIsExpanded(!isExpanded)}
+    >
+      <div className="p-6 flex justify-between items-start">
         <div>
           <h2 className="text-2xl font-medium text-white">{title}</h2>
           <p className="text-gray-400">
@@ -56,7 +63,7 @@ export const AssetTypeTable = ({
           </div>
         </div>
       </div>
-      <AssetList assets={filteredPositions} />
+      {isExpanded && <AssetList assets={filteredPositions} />}
     </div>
   );
 };

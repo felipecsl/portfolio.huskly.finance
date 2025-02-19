@@ -106,7 +106,7 @@ export const AssetList = ({ assets }: AssetListProps) => {
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      <div className="flex flex-col gap-4 p-6 items-center">
+      <div className="flex flex-col gap-4 px-6 pb-6 items-center">
         <div className="w-1/2">
           <input
             type="text"
