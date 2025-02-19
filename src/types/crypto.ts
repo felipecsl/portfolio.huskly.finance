@@ -41,3 +41,11 @@ export interface Portfolio {
     };
   };
 }
+
+export interface CryptoAssetResponse {
+  symbol: string;
+  name: string;
+  price: number;
+  changePercent24h: number;
+  type: "crypto";
+}

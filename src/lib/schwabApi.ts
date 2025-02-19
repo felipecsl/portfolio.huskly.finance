@@ -125,13 +125,14 @@ export async function getSchwabToken(): Promise<string | null> {
 export async function fetchAccountNumbers(): Promise<
   { accountNumber: string; hashValue: string }[]
 > {
-  return (
-    (await cacheFetch<{ accountNumber: string; hashValue: string }[]>(
-      "schwab-account-numbers",
-      async () => await fetchSchwabApi("/trader/v1/accounts/accountNumbers"),
-      60 * 60 * 12, // 12 hours
-    )) || []
+  const accountNumbers = await cacheFetch<
+    { accountNumber: string; hashValue: string }[]
+  >(
+    "schwab-account-numbers",
+    async () => await fetchSchwabApi("/trader/v1/accounts/accountNumbers"),
+    60 * 60 * 12, // 12 hours
   );
+  return accountNumbers || [];
 }
 
 export async function fetchTransactionHistory(

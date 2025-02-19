@@ -1,9 +1,9 @@
 import { PortfolioList } from "@/components/PortfolioList";
 import { PortfolioUpload } from "@/components/PortfolioUpload";
-import { usePortfolios } from "@/hooks/usePortfolios";
 import { SchwabAccountTable } from "@/components/SchwabAccountTable";
-import { Link } from "react-router-dom";
+import { usePortfolios } from "@/hooks/usePortfolios";
 import { useCallback, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 
 export interface StockProfile {
   name: string;
@@ -17,9 +17,9 @@ const Index = () => {
     Record<string, number>
   >({});
 
-  const sortedSchwabAccounts = [...schwabAccounts].sort((a, b) => {
-    return b.liquidationValue - a.liquidationValue;
-  });
+  const sortedSchwabAccounts = [...schwabAccounts].sort(
+    (a, b) => b.liquidationValue - a.liquidationValue,
+  );
 
   const handleValueUpdate = useCallback(
     (portfolioName: string, value: number) => {
@@ -73,16 +73,14 @@ const Index = () => {
           />
         ))}
 
-        <>
-          <PortfolioList
-            portfolios={portfolios}
-            onRemove={removePortfolio}
-            onValueUpdate={handleValueUpdate}
-          />
-          <div className="mt-8">
-            <PortfolioUpload onUpload={addPortfolio} />
-          </div>
-        </>
+        <PortfolioList
+          portfolios={portfolios}
+          onRemove={removePortfolio}
+          onValueUpdate={handleValueUpdate}
+        />
+        <div className="mt-8">
+          <PortfolioUpload onUpload={addPortfolio} />
+        </div>
       </div>
     </div>
   );

@@ -16,7 +16,13 @@ import {
   fetchStockQuotes,
   PriceDataPoint,
 } from "@/lib/stockData";
-import { cryptoSymbols, isCrypto } from "@/lib/cryptoData";
+import {
+  cryptoSymbols,
+  isCrypto,
+  fetchCryptoAssetDetails,
+  type CryptoAssetResponse,
+} from "@/lib/cryptoData";
+
 interface ChartPeriod {
   days: number;
   label: string;
@@ -33,13 +39,15 @@ const CHART_PERIODS: ChartPeriod[] = [
   { days: 365 * 5, label: "5Y", frequency: 1, frequencyType: "weekly" },
 ];
 
-interface AssetResponse {
-  symbol: string;
-  name: string;
-  price: number;
-  changePercent24h: number;
-  type: "crypto" | "stock";
-}
+type AssetResponse =
+  | CryptoAssetResponse
+  | {
+      symbol: string;
+      name: string;
+      price: number;
+      changePercent24h: number;
+      type: "stock";
+    };
 
 const AssetDetail = () => {
   const { symbol } = useParams<{ symbol: string }>();
@@ -68,28 +76,8 @@ const AssetDetail = () => {
 
       try {
         if (isCrypto(symbol)) {
-          // Fetch crypto data from CoinCap
-          const formattedSymbol = cryptoSymbols[symbol] || symbol.toLowerCase();
-          const response = await fetch(
-            `https://api.coincap.io/v2/assets/${formattedSymbol}`,
-          );
-
-          if (!response.ok) {
-            throw new Error("Failed to fetch crypto data");
-          }
-
-          const data = await response.json();
-          const result: AssetResponse = {
-            symbol: data.data.symbol,
-            name: data.data.name,
-            price: parseFloat(data.data.priceUsd),
-            changePercent24h: parseFloat(data.data.changePercent24Hr),
-            type: "crypto",
-          };
-
-          return cacheSet(cacheKey, result);
+          return await fetchCryptoAssetDetails(symbol);
         } else {
-          // Fetch stock data using new batch quotes function
           const quotes = await fetchStockQuotes([symbol]);
           const quote = quotes.get(symbol);
 

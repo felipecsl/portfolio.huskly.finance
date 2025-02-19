@@ -9,7 +9,7 @@ export async function cacheFetch<T>(
   key: string,
   fetchFunction: () => Promise<T>,
   expirationInSeconds: number = CACHE_DURATION,
-): Promise<T | null> {
+): Promise<T> {
   const cached = cacheGet<T>(key);
   if (cached) return Promise.resolve(cached);
 

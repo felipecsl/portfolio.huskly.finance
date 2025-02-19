@@ -121,10 +121,9 @@ export async function fetchStockQuotes(
 }
 
 export async function fetchStockAssets(symbols: Set<string>): Promise<Asset[]> {
-  const quotes = await fetchStockQuotes(Array.from(symbols));
-
-  // Map to assets
-  return Array.from(symbols).map((symbol) => {
+  const symbolsArray = Array.from(symbols);
+  const quotes = await fetchStockQuotes(symbolsArray);
+  return symbolsArray.map((symbol) => {
     const quote = quotes.get(symbol) || { c: 0, dp: 0, name: "" };
     return {
       id: symbol,

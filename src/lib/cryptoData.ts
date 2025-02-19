@@ -1,5 +1,5 @@
-import { Asset } from "@/types/crypto";
-import { PriceDataPoint } from "./stockData";
+import { Asset, CryptoAssetResponse } from "@/types/crypto";
+import { PriceDataPoint } from "@/types/schwab";
 import { cacheFetch } from "./cache";
 
 export const cryptoSymbols: { [key: string]: string } = {
@@ -26,7 +26,7 @@ export const cryptoSymbols: { [key: string]: string } = {
 };
 
 export const isCrypto = (symbol: string) => {
-  return cryptoSymbols.hasOwnProperty(symbol);
+  return Object.prototype.hasOwnProperty.call(cryptoSymbols, symbol);
 };
 
 export async function fetchCryptoAssets(
@@ -42,7 +42,7 @@ export async function fetchCryptoAssets(
   });
 
   return data
-    .filter((asset: any) => [...symbols].includes(asset.symbol))
+    .filter((asset: any) => symbols.has(asset.symbol))
     .map((asset: any) => ({
       id: asset.id,
       symbol: asset.symbol,
@@ -82,4 +82,32 @@ export async function fetchCryptoPriceHistory(
       price: parseFloat(item.priceUsd),
     }))
     .sort((a: PriceDataPoint, b: PriceDataPoint) => a.timestamp - b.timestamp);
+}
+
+export async function fetchCryptoAssetDetails(
+  symbol: string,
+): Promise<CryptoAssetResponse> {
+  return await cacheFetch<CryptoAssetResponse>(
+    `asset:${symbol}`,
+    async () => {
+      const formattedSymbol = cryptoSymbols[symbol] || symbol.toLowerCase();
+      const response = await fetch(
+        `https://api.coincap.io/v2/assets/${formattedSymbol}`,
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch crypto data");
+      }
+
+      const data = await response.json();
+      return {
+        symbol: data.data.symbol,
+        name: data.data.name,
+        price: parseFloat(data.data.priceUsd),
+        changePercent24h: parseFloat(data.data.changePercent24Hr),
+        type: "crypto" as const,
+      };
+    },
+    60, // 1 minute cache duration
+  );
 }
