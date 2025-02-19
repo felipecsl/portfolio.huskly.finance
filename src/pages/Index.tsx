@@ -3,6 +3,7 @@ import { PortfolioUpload } from "@/components/PortfolioUpload";
 import { usePortfolios } from "@/hooks/usePortfolios";
 import { SchwabAccountTable } from "@/components/SchwabAccountTable";
 import { Link } from "react-router-dom";
+import { useCallback, useMemo, useState } from "react";
 
 export interface StockProfile {
   name: string;
@@ -11,6 +12,33 @@ export interface StockProfile {
 const Index = () => {
   const { portfolios, schwabAccounts, addPortfolio, removePortfolio } =
     usePortfolios();
+
+  const [portfolioValues, setPortfolioValues] = useState<
+    Record<string, number>
+  >({});
+
+  const handleValueUpdate = useCallback(
+    (portfolioName: string, value: number) => {
+      setPortfolioValues((prev) => {
+        // Only update if the value has changed
+        if (prev[portfolioName] === value) {
+          return prev;
+        }
+        return {
+          ...prev,
+          [portfolioName]: value,
+        };
+      });
+    },
+    [],
+  );
+
+  const totalPortfoliosValue = useMemo(() => {
+    return (
+      Object.values(portfolioValues).reduce((sum, value) => sum + value, 0) +
+      schwabAccounts.reduce((sum, account) => sum + account.liquidationValue, 0)
+    );
+  }, [portfolioValues]);
 
   return (
     <div className="min-h-screen p-8 bg-zinc-800">
@@ -24,6 +52,16 @@ const Index = () => {
           </Link>
         </div>
 
+        <div className="bg-white shadow rounded-lg px-4 py-6 dark:bg-stone-900 border-gray-950 border rounded drop-shadow-lg mb-8">
+          <h2 className="text-4xl font-medoium text-gray-900 dark:text-white">
+            $
+            {totalPortfoliosValue.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </h2>
+        </div>
+
         {schwabAccounts.map((account, i) => (
           <SchwabAccountTable
             key={`${account.accountNumber}-${i}`}
@@ -31,16 +69,16 @@ const Index = () => {
           />
         ))}
 
-        {!portfolios.length ? (
-          <PortfolioUpload onUpload={addPortfolio} />
-        ) : (
-          <>
-            <PortfolioList portfolios={portfolios} onRemove={removePortfolio} />
-            <div className="mt-8">
-              <PortfolioUpload onUpload={addPortfolio} />
-            </div>
-          </>
-        )}
+        <>
+          <PortfolioList
+            portfolios={portfolios}
+            onRemove={removePortfolio}
+            onValueUpdate={handleValueUpdate}
+          />
+          <div className="mt-8">
+            <PortfolioUpload onUpload={addPortfolio} />
+          </div>
+        </>
       </div>
     </div>
   );
