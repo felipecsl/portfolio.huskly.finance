@@ -10,7 +10,7 @@ export interface SchwabPosition {
     symbol: string;
     description: string;
     instrumentId: number;
-    netChange: number;
+    netChange?: number;
     type: string;
   };
   marketValue: number;
@@ -30,33 +30,36 @@ export interface SchwabAccount {
   };
 }
 
-export interface SchwabQuoteResponse {
-  [symbol: string]: {
-    assetMainType: string;
-    assetSubType: string;
-    quoteType: string;
-    realtime: boolean;
-    ssid: number;
-    symbol: string;
-    quote: {
-      lastPrice: number;
-      netPercentChange: number;
-      markPercentChange: number;
-      // ... other quote fields
-    };
-    reference: {
-      description: string;
-      // ... other reference fields
-    };
+export type SchwabQuote = {
+  assetMainType: string;
+  assetSubType: string;
+  quoteType: string;
+  realtime: boolean;
+  ssid: number;
+  symbol: string;
+  quote: {
+    lastPrice: number;
+    netPercentChange: number;
+    markPercentChange: number;
   };
+  reference: {
+    description: string;
+  };
+};
+
+export interface SchwabQuoteResponse {
+  [symbol: string]: SchwabQuote;
 }
 
 export interface ParsedPosition {
   symbol: string;
   name: string;
   amount: number;
-  priceUsd: string;
+  averageTradePriceUsd: string;
+  // market value (mark price * amount)
   value: number;
+  // mark price
+  mark: string;
   changePercent24Hr: string;
   id: string;
   type: "stock" | "option";

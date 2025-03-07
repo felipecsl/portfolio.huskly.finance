@@ -16,7 +16,8 @@ interface AssetListProps {
   assets: {
     symbol: string;
     name: string;
-    priceUsd: string;
+    mark: string;
+    averageTradePriceUsd: string;
     changePercent24Hr: string;
     amount: number;
     id: string;
@@ -39,7 +40,13 @@ export const AssetList = ({ assets }: AssetListProps) => {
   );
 
   const calculateHoldingValue = (asset: AssetListProps["assets"][number]) => {
-    return parseFloat(asset.priceUsd) * asset.amount;
+    if (asset.type === "stock") {
+      return parseFloat(asset.mark) * asset.amount;
+    } else if (asset.type === "option") {
+      return parseFloat(asset.mark) * asset.amount * 100;
+    } else {
+      throw new Error(`Unknown asset type: ${asset.type}`);
+    }
   };
 
   const getHoldingAmount = (symbol: string) => {
@@ -81,7 +88,9 @@ export const AssetList = ({ assets }: AssetListProps) => {
             comparison = a.name.localeCompare(b.name);
             break;
           case "priceUsd":
-            comparison = parseFloat(a.priceUsd) - parseFloat(b.priceUsd);
+            comparison =
+              parseFloat(a.averageTradePriceUsd) -
+              parseFloat(b.averageTradePriceUsd);
             break;
           case "amount":
             comparison =
@@ -170,6 +179,7 @@ export const AssetList = ({ assets }: AssetListProps) => {
           <tbody>
             {getSortedAssets().map((asset, i) => {
               const value = calculateHoldingValue(asset);
+
               return (
                 <tr
                   key={`${asset.id}-${i}`}
@@ -179,7 +189,7 @@ export const AssetList = ({ assets }: AssetListProps) => {
                   <td className="p-4">{asset.symbol}</td>
                   <td className="px-2 py-4">{asset.name}</td>
                   <td className="px-2 py-4 text-right">
-                    {formatPrice(parseFloat(asset.priceUsd))}
+                    {formatPrice(asset.mark)}
                   </td>
                   <td className="px-2 py-4 text-right">
                     {getHoldingAmount(asset.symbol).toLocaleString()}

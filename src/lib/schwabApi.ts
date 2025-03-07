@@ -9,6 +9,7 @@ import type {
   PriceDataPoint,
   PriceHistoryParams,
   PriceHistoryResponse,
+  SchwabQuote,
 } from "@/types/schwab";
 
 function parseSchwabAccounts(data: SchwabAccount[]): ParsedPortfolio[] {
@@ -18,22 +19,31 @@ function parseSchwabAccounts(data: SchwabAccount[]): ParsedPortfolio[] {
 
   return data.map((account) => {
     const positions = account.securitiesAccount.positions || [];
-
     const parsedPositions: ParsedPosition[] = positions
       .filter((pos) => pos.longQuantity > 0 || pos.shortQuantity > 0) // Filter out zero-quantity positions
       .map((position) => {
         const quantity = position.longQuantity - position.shortQuantity;
         const isOption = position.instrument.assetType === "OPTION";
+        const mark = isOption
+          ? position.marketValue / 100 / quantity
+          : position.marketValue / quantity;
 
+        const symbol = isOption
+          ? position.instrument.symbol.split(" ")[0]
+          : position.instrument.symbol;
+        // TODO: netChange is not always available, so we need to fetch the quote
+        const netChange = position.instrument.netChange ?? 0;
+        const previousClose = mark - netChange;
+        const changePercent24Hr =
+          ((mark - previousClose) / previousClose) * 100;
         return {
-          symbol: isOption
-            ? position.instrument.symbol.split(" ")[0]
-            : position.instrument.symbol,
+          symbol,
           name: position.instrument.description || position.instrument.symbol,
           amount: quantity,
-          priceUsd: position.averagePrice.toFixed(2),
+          averageTradePriceUsd: position.averagePrice.toFixed(2),
           value: position.marketValue,
-          changePercent24Hr: position.currentDayProfitLossPercentage.toFixed(2),
+          mark: mark.toFixed(2),
+          changePercent24Hr: changePercent24Hr.toFixed(2),
           id: position.instrument.cusip,
           type: isOption ? "option" : "stock",
         };
@@ -85,18 +95,12 @@ async function fetchSchwabApi<T>(
 }
 
 export async function fetchSchwabAccounts(): Promise<ParsedPortfolio[]> {
-  return (
-    (await cacheFetch<ParsedPortfolio[]>(
-      "schwab-accounts",
-      async () => {
-        const data: SchwabAccount[] = await fetchSchwabApi(
-          "/trader/v1/accounts?fields=positions",
-        );
-        return parseSchwabAccounts(data);
-      },
-      60, // 1 minute
-    )) || []
+  const cachedAccounts = await cacheFetch<SchwabAccount[]>(
+    "schwab-accounts",
+    async () => await fetchSchwabApi("/trader/v1/accounts?fields=positions"),
+    60,
   );
+  return parseSchwabAccounts(cachedAccounts || []);
 }
 
 export async function getSchwabToken(): Promise<string | null> {
@@ -161,6 +165,11 @@ export async function fetchAccountTransactionHistory(
   return await fetchSchwabApi(
     `/trader/v1/accounts/${accountHash}/transactions?startDate=${formattedStartDate}&endDate=${formattedEndDate}`,
   );
+}
+
+export async function fetchSchwabQuote(symbol: string): Promise<SchwabQuote> {
+  const data = await fetchSchwabQuotes([symbol]);
+  return data[symbol];
 }
 
 export async function fetchSchwabQuotes(

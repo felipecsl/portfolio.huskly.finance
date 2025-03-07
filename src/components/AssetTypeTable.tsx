@@ -3,6 +3,7 @@ import { AssetList } from "./AssetList";
 import { PercentageChange } from "./PercentageChange";
 import { formatPrice } from "@/lib/utils/format";
 import { useState } from "react";
+import { isEmpty } from "lodash";
 
 interface AssetTypeTableProps {
   positions: ParsedPosition[];
@@ -24,7 +25,7 @@ export const AssetTypeTable = ({
     (position) => position.type === type,
   );
 
-  if (filteredPositions.length === 0) {
+  if (isEmpty(filteredPositions)) {
     return null;
   }
 
