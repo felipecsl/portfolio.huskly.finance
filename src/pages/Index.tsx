@@ -2,7 +2,7 @@ import { PortfolioList } from "@/components/PortfolioList";
 import { PortfolioUpload } from "@/components/PortfolioUpload";
 import { SchwabAccountTable } from "@/components/SchwabAccountTable";
 import { usePortfolios } from "@/hooks/usePortfolios";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 

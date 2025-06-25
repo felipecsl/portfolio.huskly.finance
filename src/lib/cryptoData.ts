@@ -33,7 +33,9 @@ export async function fetchCryptoAssets(
   symbols: Set<string>,
 ): Promise<Asset[]> {
   const data = await cacheFetch("crypto-assets", async () => {
-    const response = await fetch(`https://api.coincap.io/v2/assets`);
+    const response = await fetch(
+      `https://rest.coincap.io/v3/assets?apiKey=${import.meta.env.VITE_COINCAP_API_KEY}`,
+    );
     if (!response.ok) {
       throw new Error("Failed to fetch crypto data");
     }
